@@ -25,7 +25,13 @@ import java.util.List;
 
 public class PluginManagerConfig
 {
-    private File installedPluginsDir = new File("plugin");
+    /***
+     * 下载presto-server-0.225.tar.gz文件，解压到任意目录，把这里边的plugin目录解压到D:\development-java\github\plugin目录，需要打开文件PluginManagerConfig.java，做如下修改:
+     *  private File installedPluginsDir = new File("D:\development-java\github\plugin");
+     */
+//    private File installedPluginsDir = new File("plugin");
+    private File installedPluginsDir = new File("D:\\development-java\\github\\plugin");
+
     private List<String> plugins;
     private File pluginConfigurationDir = new File("etc/");
     private String mavenLocalRepository = ArtifactResolver.USER_LOCAL_REPO;
