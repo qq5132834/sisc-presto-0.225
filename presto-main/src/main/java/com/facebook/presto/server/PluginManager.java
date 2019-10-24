@@ -148,9 +148,10 @@ public class PluginManager
             }
         }
 
-        for (String plugin : plugins) {
-            loadPlugin(plugin);
-        }
+//        注释掉插件加载
+//        for (String plugin : plugins) {
+//            loadPlugin(plugin);
+//        }
 
         metadata.verifyComparableOrderableContract();
 
