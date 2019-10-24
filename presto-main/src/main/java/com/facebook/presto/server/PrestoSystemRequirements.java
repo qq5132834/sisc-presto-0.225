@@ -83,7 +83,8 @@ final class PrestoSystemRequirements
             }
         }
         else {
-            failRequirement("Presto requires Linux or Mac OS X (found %s)", osName);
+            //取消系统识别异常抛出
+//            failRequirement("Presto requires Linux or Mac OS X (found %s)", osName);
         }
     }
 
