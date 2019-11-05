@@ -28,6 +28,7 @@ import com.google.common.collect.Ordering;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.airlift.concurrent.BoundedExecutor;
+import io.airlift.log.Logger;
 import io.airlift.stats.CounterStat;
 import io.airlift.units.DataSize;
 import io.airlift.units.Duration;
@@ -106,6 +107,8 @@ public class StatementResource
     private final ScheduledExecutorService queryPurger = newSingleThreadScheduledExecutor(threadsNamed("query-purger"));
 
     private final CounterStat createQueryRequests = new CounterStat();
+
+    private static final Logger LOGGER = Logger.get(StatementResource.class);
 
     @Inject
     public StatementResource(
@@ -215,6 +218,9 @@ public class StatementResource
             String scheme,
             AsyncResponse asyncResponse)
     {
+
+        LOGGER.info("asyncQueryResults");
+
         Duration wait = WAIT_ORDERING.min(MAX_WAIT_TIME, maxWait);
         if (targetResultSize == null) {
             targetResultSize = DEFAULT_TARGET_RESULT_SIZE;

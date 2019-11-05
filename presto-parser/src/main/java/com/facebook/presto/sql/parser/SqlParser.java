@@ -17,6 +17,7 @@ import com.facebook.presto.sql.tree.Expression;
 import com.facebook.presto.sql.tree.Node;
 import com.facebook.presto.sql.tree.PathSpecification;
 import com.facebook.presto.sql.tree.Statement;
+import io.airlift.log.Logger;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonToken;
@@ -46,6 +47,9 @@ import static java.util.Objects.requireNonNull;
 
 public class SqlParser
 {
+
+    private static final Logger LOGGER = Logger.get(SqlParser.class);
+
     private static final BaseErrorListener LEXER_ERROR_LISTENER = new BaseErrorListener()
     {
         @Override
@@ -85,16 +89,19 @@ public class SqlParser
     }
 
     /**
-     * Consider using {@link #createStatement(String, ParsingOptions)}
+     *
      */
     @Deprecated
     public Statement createStatement(String sql)
     {
+        LOGGER.info("createStatement.sql:"+sql);
         return createStatement(sql, new ParsingOptions());
     }
 
     public Statement createStatement(String sql, ParsingOptions parsingOptions)
     {
+        LOGGER.info("创建Statement，参数sql="+sql);
+        LOGGER.info(parsingOptions.getClass().getName());
         return (Statement) invokeParser("statement", sql, SqlBaseParser::singleStatement, parsingOptions);
     }
 
@@ -109,17 +116,21 @@ public class SqlParser
 
     public Expression createExpression(String expression, ParsingOptions parsingOptions)
     {
+        LOGGER.info("createExpression.expression:"+expression);
+        LOGGER.info(parsingOptions.getClass().getName());
         return (Expression) invokeParser("expression", expression, SqlBaseParser::standaloneExpression, parsingOptions);
     }
 
     public PathSpecification createPathSpecification(String expression)
     {
+        LOGGER.info("createPathSpecification.expression:"+expression);
         return (PathSpecification) invokeParser("path specification", expression, SqlBaseParser::standalonePathSpecification, new ParsingOptions());
     }
 
     private Node invokeParser(String name, String sql, Function<SqlBaseParser, ParserRuleContext> parseFunction, ParsingOptions parsingOptions)
     {
         try {
+            LOGGER.info("将sql转成语法树Node对象:"+sql);
             SqlBaseLexer lexer = new SqlBaseLexer(new CaseInsensitiveStream(CharStreams.fromString(sql)));
             CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             SqlBaseParser parser = new SqlBaseParser(tokenStream);
@@ -169,6 +180,8 @@ public class SqlParser
                 parser.getInterpreter().setPredictionMode(PredictionMode.LL);
                 tree = parseFunction.apply(parser);
             }
+
+            LOGGER.info("输出树结构:"+tree.toStringTree(parser));
 
             return new AstBuilder(parsingOptions).visit(tree);
         }

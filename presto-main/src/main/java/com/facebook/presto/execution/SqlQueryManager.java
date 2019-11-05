@@ -131,6 +131,8 @@ public class SqlQueryManager
 
     private final WarningCollectorFactory warningCollectorFactory;
 
+    private static final Logger LOGGER = Logger.get(SqlQueryManager.class);
+
     @Inject
     public SqlQueryManager(
             QueryPreparer queryPreparer,
@@ -303,6 +305,8 @@ public class SqlQueryManager
     @Override
     public ListenableFuture<?> createQuery(QueryId queryId, SessionContext sessionContext, String query)
     {
+        LOGGER.info("createQuery");
+
         QueryCreationFuture queryCreationFuture = new QueryCreationFuture();
         boundedExecutor.execute(embedVersion.embedVersion(() -> {
             try {
@@ -318,6 +322,8 @@ public class SqlQueryManager
 
     private <C> void createQueryInternal(QueryId queryId, SessionContext sessionContext, String query, ResourceGroupManager<C> resourceGroupManager)
     {
+        LOGGER.info("createQueryInternal");
+
         requireNonNull(queryId, "queryId is null");
         requireNonNull(sessionContext, "sessionFactory is null");
         requireNonNull(query, "query is null");
@@ -339,11 +345,13 @@ public class SqlQueryManager
             }
 
             // decode session
+            LOGGER.info("decode session");
             session = sessionSupplier.createSession(queryId, sessionContext);
 
             WarningCollector warningCollector = warningCollectorFactory.create();
 
             // prepare query
+            LOGGER.info("prepare query");
             preparedQuery = queryPreparer.prepareQuery(session, query, warningCollector);
 
             // select resource group

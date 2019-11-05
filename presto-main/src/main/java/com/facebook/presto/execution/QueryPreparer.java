@@ -26,6 +26,7 @@ import com.facebook.presto.sql.tree.Expression;
 import com.facebook.presto.sql.tree.Statement;
 import com.facebook.presto.util.StatementUtils;
 import com.google.common.collect.ImmutableList;
+import io.airlift.log.Logger;
 
 import javax.inject.Inject;
 
@@ -41,7 +42,9 @@ import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 
 public class QueryPreparer
+
 {
+    private static final Logger LOGGER = Logger.get(QueryPreparer.class);
     private final SqlParser sqlParser;
 
     @Inject
@@ -53,6 +56,7 @@ public class QueryPreparer
     public PreparedQuery prepareQuery(Session session, String query, WarningCollector warningCollector)
             throws ParsingException, PrestoException, SemanticException
     {
+        LOGGER.info("prepareQuery，参数query="+query);
         Statement wrappedStatement = sqlParser.createStatement(query, createParsingOptions(session, warningCollector));
         return prepareQuery(session, wrappedStatement, warningCollector);
     }

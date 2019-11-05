@@ -169,6 +169,7 @@ import com.facebook.presto.sql.tree.WithQuery;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import io.airlift.log.Logger;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -191,15 +192,54 @@ class AstBuilder
     private int parameterPosition;
     private final ParsingOptions parsingOptions;
 
+    private static final Logger LOGGER = Logger.get(AstBuilder.class);
+
     AstBuilder(ParsingOptions parsingOptions)
     {
+        LOGGER.info("创建语法执行AstBuilder extends SqlBaseBaseVisitor<Node> 对象");
         this.parsingOptions = requireNonNull(parsingOptions, "parsingOptions is null");
     }
 
     @Override
     public Node visitSingleStatement(SqlBaseParser.SingleStatementContext context)
     {
-        return visit(context.statement());
+        Node node = visit(context.statement());
+        LOGGER.info("完成语法树Node构建");
+        showNodeInfo(node);
+        return node;
+    }
+
+    /***
+     *  展示node信息
+     * @param node
+     */
+    private void showNodeInfo(Node node){
+
+        LOGGER.info(node.getClass().getName());
+
+        if(node instanceof Query){
+
+            List<Query> children = (List<Query>) node.getChildren();
+
+            if(children!=null){
+//                LOGGER.info(children.size()+"");
+//                for (Query query : children ) {
+//                    QueryBody queryBody = query.getQueryBody();
+//                    LOGGER.info(queryBody.getClass().getName());
+//                    QuerySpecification querySpecification = (QuerySpecification) query.getQueryBody();
+//                    LOGGER.info(querySpecification.getSelect().toString());
+//                    LOGGER.info(querySpecification.getFrom().toString());
+//                    LOGGER.info(query.getQueryBody());
+//                    LOGGER.info();
+//                    showNodeInfo(query);
+//                }
+            }
+            else{
+                LOGGER.info("children is null.");
+            }
+
+        }
+
     }
 
     @Override

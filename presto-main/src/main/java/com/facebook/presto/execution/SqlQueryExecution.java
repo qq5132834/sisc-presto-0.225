@@ -63,6 +63,7 @@ import com.facebook.presto.transaction.TransactionManager;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.airlift.concurrent.SetThreadName;
+import io.airlift.log.Logger;
 import io.airlift.units.DataSize;
 import io.airlift.units.Duration;
 import org.joda.time.DateTime;
@@ -681,6 +682,8 @@ public class SqlQueryExecution
         private final StatsCalculator statsCalculator;
         private final CostCalculator costCalculator;
 
+        private static final Logger LOGGER = Logger.get(SqlQueryExecutionFactory.class);
+
         @Inject
         SqlQueryExecutionFactory(QueryManagerConfig config,
                 Metadata metadata,
@@ -774,6 +777,8 @@ public class SqlQueryExecution
                     statsCalculator,
                     costCalculator,
                     warningCollector);
+
+            LOGGER.info("创建QueryExecution对象");
 
             return execution;
         }
