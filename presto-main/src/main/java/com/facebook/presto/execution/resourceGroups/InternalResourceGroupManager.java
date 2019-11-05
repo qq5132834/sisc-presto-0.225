@@ -86,6 +86,7 @@ public final class InternalResourceGroupManager<C>
     @Inject
     public InternalResourceGroupManager(LegacyResourceGroupConfigurationManager legacyManager, ClusterMemoryPoolManager memoryPoolManager, NodeInfo nodeInfo, MBeanExporter exporter)
     {
+        log.info("初始化InternalResourceGroupManager");
         this.exporter = requireNonNull(exporter, "exporter is null");
         this.configurationManagerContext = new ResourceGroupConfigurationManagerContextInstance(memoryPoolManager, nodeInfo.getEnvironment());
         this.legacyManager = requireNonNull(legacyManager, "legacyManager is null");
@@ -109,6 +110,7 @@ public final class InternalResourceGroupManager<C>
     @Override
     public void submit(Statement statement, ManagedQueryExecution queryExecution, SelectionContext<C> selectionContext, Executor executor)
     {
+        log.info("submit");
         checkState(configurationManager.get() != null, "configurationManager not set");
         createGroupIfNecessary(selectionContext, executor);
         groups.get(selectionContext.getResourceGroupId()).run(queryExecution);
@@ -133,8 +135,17 @@ public final class InternalResourceGroupManager<C>
     public void loadConfigurationManager()
             throws Exception
     {
+        log.info("loadConfigurationManager");
+
         if (RESOURCE_GROUPS_CONFIGURATION.exists()) {
             Map<String, String> properties = new HashMap<>(loadProperties(RESOURCE_GROUPS_CONFIGURATION));
+
+            if(properties!=null){
+                for(Map.Entry<String, String> map : properties.entrySet()){
+                    log.info("key:"+map.getKey());
+                    log.info("val:"+map.getValue());
+                }
+            }
 
             String configurationManagerName = properties.remove(CONFIGURATION_MANAGER_PROPERTY_NAME);
             checkArgument(!isNullOrEmpty(configurationManagerName),

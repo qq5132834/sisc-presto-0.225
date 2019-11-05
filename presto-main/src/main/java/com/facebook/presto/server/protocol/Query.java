@@ -300,9 +300,18 @@ class Query
         return clearTransactionId;
     }
 
+    /***
+     * 异步获取结果
+     * @param token
+     * @param uriInfo
+     * @param scheme
+     * @param wait
+     * @param targetResultSize
+     * @return
+     */
     public synchronized ListenableFuture<QueryResults> waitForResults(OptionalLong token, UriInfo uriInfo, String scheme, Duration wait, DataSize targetResultSize)
     {
-        log.info("before waiting, check if this request has already been processed and cached");
+        log.info("waitForResults");
 
         // before waiting, check if this request has already been processed and cached
         if (token.isPresent()) {
@@ -313,8 +322,13 @@ class Query
         }
 
         // wait for a results data or query to finish, up to the wait timeout
+        ListenableFuture<?> listenableFuture = getFutureStateChange();
+        /***
+         * 判断是否完成
+         */
+        log.info(String.valueOf(listenableFuture.isDone()));
         ListenableFuture<?> futureStateChange = addTimeout(
-                getFutureStateChange(),
+                listenableFuture,
                 () -> null,
                 wait,
                 timeoutExecutor);
@@ -323,11 +337,19 @@ class Query
         return Futures.transform(futureStateChange, ignored -> getNextResult(token, uriInfo, scheme, targetResultSize), resultsProcessorExecutor);
     }
 
+    /***
+     * 获取future状态改变
+     * @return
+     */
     private synchronized ListenableFuture<?> getFutureStateChange()
     {
 
-        log.info("ensure the query has been submitted");
+        log.info("getFutureStateChange");
+
         // ensure the query has been submitted
+        /***
+         * 提交查询
+         */
         submissionFuture.submitQuery();
 
         // if query query submission has not finished, wait for it to finish
@@ -757,6 +779,9 @@ class Query
                 return;
             }
 
+            log.info(queryManager.getClass().getName());
+            log.info("query="+query);
+            log.info("queryId="+queryId.getId());
             querySubmissionFuture = queryManager.createQuery(queryId, sessionContext, this.query);
             Futures.addCallback(querySubmissionFuture, new FutureCallback<Object>()
             {

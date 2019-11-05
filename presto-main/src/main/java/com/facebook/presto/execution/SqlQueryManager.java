@@ -20,6 +20,7 @@ import com.facebook.presto.execution.QueryExecution.QueryExecutionFactory;
 import com.facebook.presto.execution.QueryExecution.QueryOutputInfo;
 import com.facebook.presto.execution.QueryPreparer.PreparedQuery;
 import com.facebook.presto.execution.StateMachine.StateChangeListener;
+import com.facebook.presto.execution.resourceGroups.InternalResourceGroupManager;
 import com.facebook.presto.execution.resourceGroups.ResourceGroupManager;
 import com.facebook.presto.execution.scheduler.NodeSchedulerConfig;
 import com.facebook.presto.execution.warnings.WarningCollector;
@@ -302,6 +303,14 @@ public class SqlQueryManager
         return queryIdGenerator.createNextQueryId();
     }
 
+
+    /***
+     * 创建的sql进行异步执行
+     * @param queryId
+     * @param sessionContext
+     * @param query
+     * @return
+     */
     @Override
     public ListenableFuture<?> createQuery(QueryId queryId, SessionContext sessionContext, String query)
     {
@@ -320,15 +329,31 @@ public class SqlQueryManager
         return queryCreationFuture;
     }
 
+
+    /***
+     * 内部调度执行sql
+     * @param queryId
+     * @param sessionContext
+     * @param query
+     * @param resourceGroupManager
+     * @param <C>
+     */
     private <C> void createQueryInternal(QueryId queryId, SessionContext sessionContext, String query, ResourceGroupManager<C> resourceGroupManager)
     {
         LOGGER.info("createQueryInternal");
+        LOGGER.info("queryId="+queryId.getId());
+        LOGGER.info("query="+query);
+        LOGGER.info(resourceGroupManager.getClass().getName());
+
+        InternalResourceGroupManager internalResourceGroupManager = (InternalResourceGroupManager)resourceGroupManager;
 
         requireNonNull(queryId, "queryId is null");
         requireNonNull(sessionContext, "sessionFactory is null");
         requireNonNull(query, "query is null");
         checkArgument(!query.isEmpty(), "query must not be empty string");
         checkArgument(!queryTracker.tryGetQuery(queryId).isPresent(), "query %s already exists", queryId);
+
+
 
         Session session = null;
         SelectionContext<C> selectionContext = null;
@@ -356,13 +381,15 @@ public class SqlQueryManager
 
             // select resource group
             queryType = getQueryType(preparedQuery.getStatement().getClass());
-            selectionContext = resourceGroupManager.selectGroup(new SelectionCriteria(
+            SelectionCriteria selectionCriteria  = new SelectionCriteria(
                     sessionContext.getIdentity().getPrincipal().isPresent(),
                     sessionContext.getIdentity().getUser(),
                     Optional.ofNullable(sessionContext.getSource()),
                     sessionContext.getClientTags(),
                     sessionContext.getResourceEstimates(),
-                    queryType.map(Enum::name)));
+                    queryType.map(Enum::name));
+
+            selectionContext = resourceGroupManager.selectGroup(selectionCriteria);
 
             // apply system defaults for query
             session = sessionPropertyDefaults.newSessionWithDefaultProperties(session, queryType.map(Enum::name), selectionContext.getResourceGroupId());

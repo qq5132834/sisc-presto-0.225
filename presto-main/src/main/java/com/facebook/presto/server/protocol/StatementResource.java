@@ -219,7 +219,7 @@ public class StatementResource
             AsyncResponse asyncResponse)
     {
 
-        LOGGER.info("asyncQueryResults");
+        LOGGER.info("异步asyncQueryResults");
 
         Duration wait = WAIT_ORDERING.min(MAX_WAIT_TIME, maxWait);
         if (targetResultSize == null) {
@@ -228,6 +228,10 @@ public class StatementResource
         else {
             targetResultSize = Ordering.natural().min(targetResultSize, MAX_TARGET_RESULT_SIZE);
         }
+
+        /***
+         * 等待执行结果
+         */
         ListenableFuture<QueryResults> queryResultsFuture = query.waitForResults(token, uriInfo, scheme, wait, targetResultSize);
 
         ListenableFuture<Response> response = Futures.transform(queryResultsFuture, queryResults -> toResponse(query, queryResults), directExecutor());
