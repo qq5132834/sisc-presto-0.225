@@ -91,6 +91,7 @@ public class PrestoServer
         verifyJvmRequirements();
         verifySystemTimeIsReasonable();
 
+
         Logger log = Logger.get(PrestoServer.class);
 
         ImmutableList.Builder<Module> modules = ImmutableList.builder();
@@ -116,6 +117,22 @@ public class PrestoServer
                 new AccessControlModule(),
                 new EventListenerModule(),
                 new ServerMainModule(sqlParserOptions),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 new GracefulShutdownModule(),
                 new WarningCollectorModule());
 
@@ -127,6 +144,18 @@ public class PrestoServer
             Injector injector = app.strictConfig().initialize();
 
             injector.getInstance(PluginManager.class).loadPlugins();
+
+
+
+
+
+
+
+
+
+
+
+
 
             injector.getInstance(StaticCatalogStore.class).loadCatalogs();
 
@@ -150,6 +179,8 @@ public class PrestoServer
         catch (Throwable e) {
             log.error(e);
             System.exit(1);
+
+
         }
     }
 

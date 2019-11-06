@@ -27,21 +27,21 @@ public class MysqlDB {
         try {
 
 //			connection = (PrestoConnection) DriverManager.getConnection("jdbc:presto://192.168.133.129:8090/mysql/baseinfo","root",null);
-            connection = (PrestoConnection) DriverManager.getConnection("jdbc:presto://192.168.133.128:8183/mysql/baseinfo","mysql",null);
-//			connection = (PrestoConnection) DriverManager.getConnection("jdbc:presto://127.0.0.1:8080/mysql/baseinfo","root",null);
+//          connection = (PrestoConnection) DriverManager.getConnection("jdbc:presto://192.168.133.128:8183/mysql/baseinfo","mysql",null);
+			connection = (PrestoConnection) DriverManager.getConnection("jdbc:presto://127.0.0.1:8080/mysql/baseinfo","root",null);
 
             PrestoStatement stmt = (PrestoStatement) connection.createStatement();
-
-            // select * from userinfos;
+//
+//            // select * from userinfos;
             PrestoResultSet rs = null;
-            rs = (PrestoResultSet) stmt.executeQuery("show tables");  //select count(*) from lineitem   show tables
+//            rs = (PrestoResultSet) stmt.executeQuery("show tables");  //select count(*) from lineitem   show tables
 //
 //			while (rs.next()) {
 //				System.out.println(rs.getString(1));
 //			}
 //			rs.close();
 
-            rs = (PrestoResultSet) stmt.executeQuery("select id, name,age from userinfos");
+            rs = (PrestoResultSet) stmt.executeQuery("select id, name,age from userinfos where id = 1");
             while (rs.next()) {
                 System.out.println(rs.getInt(1)+"/"+rs.getString(2)+"/"+rs.getInt(3));
             }

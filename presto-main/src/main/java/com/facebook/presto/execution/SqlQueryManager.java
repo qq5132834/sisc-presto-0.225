@@ -37,6 +37,7 @@ import com.facebook.presto.spi.QueryId;
 import com.facebook.presto.spi.resourceGroups.QueryType;
 import com.facebook.presto.spi.resourceGroups.SelectionContext;
 import com.facebook.presto.spi.resourceGroups.SelectionCriteria;
+import com.facebook.presto.spi.security.Identity;
 import com.facebook.presto.sql.SqlEnvironmentConfig;
 import com.facebook.presto.sql.SqlPath;
 import com.facebook.presto.sql.planner.Plan;
@@ -126,6 +127,11 @@ public class SqlQueryManager
 
     private final ClusterSizeMonitor clusterSizeMonitor;
 
+    /***
+     *
+     * 这map中存储了不同的statement类型与QueryExecutionFactory实现类的对应关系
+     *
+     */
     private final Map<Class<? extends Statement>, QueryExecutionFactory<?>> executionFactories;
 
     private final SqlQueryManagerStats stats = new SqlQueryManagerStats();
@@ -370,13 +376,14 @@ public class SqlQueryManager
             }
 
             // decode session
-            LOGGER.info("decode session");
             session = sessionSupplier.createSession(queryId, sessionContext);
+
+
 
             WarningCollector warningCollector = warningCollectorFactory.create();
 
             // prepare query
-            LOGGER.info("prepare query");
+            LOGGER.info("PreparedQuery对象");
             preparedQuery = queryPreparer.prepareQuery(session, query, warningCollector);
 
             // select resource group
@@ -397,8 +404,24 @@ public class SqlQueryManager
             // mark existing transaction as active
             transactionManager.activateTransaction(session, isTransactionControlStatement(preparedQuery.getStatement()), accessControl);
 
+
+
+            /***
+             *  输出statement类型与QueryExecutionFactory实现类的对应关系
+             */
+//            if(executionFactories!=null){
+//
+//                for(Map.Entry<Class<? extends Statement>, QueryExecutionFactory<?>> entry : executionFactories.entrySet()){
+//                    Class cls = entry.getKey();
+//                    QueryExecutionFactory queryExecutionFactory = entry.getValue();
+//                    LOGGER.info(cls.getName() + "/" +queryExecutionFactory.getClass().getName());
+//                }
+//            }
+
+            LOGGER.info("重要节点【根据statement的类型，获取对应的QueryExectionFactory】");
             // create query execution
             QueryExecutionFactory<?> queryExecutionFactory = executionFactories.get(preparedQuery.getStatement().getClass());
+
             if (queryExecutionFactory == null) {
                 throw new PrestoException(NOT_SUPPORTED, "Unsupported statement type: " + preparedQuery.getStatement().getClass().getSimpleName());
             }
@@ -477,6 +500,7 @@ public class SqlQueryManager
 
         // start the query in the background
         try {
+            LOGGER.info("在后台启动查询");
             resourceGroupManager.submit(preparedQuery.getStatement(), queryExecution, selectionContext, unboundedExecutorService);
         }
         catch (Throwable e) {

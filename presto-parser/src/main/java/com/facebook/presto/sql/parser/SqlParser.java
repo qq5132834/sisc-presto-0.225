@@ -100,7 +100,7 @@ public class SqlParser
 
     public Statement createStatement(String sql, ParsingOptions parsingOptions)
     {
-        LOGGER.info("创建Statement，参数sql="+sql);
+        LOGGER.info("重要节点【创建Statement】");
         LOGGER.info(parsingOptions.getClass().getName());
         return (Statement) invokeParser("statement", sql, SqlBaseParser::singleStatement, parsingOptions);
     }

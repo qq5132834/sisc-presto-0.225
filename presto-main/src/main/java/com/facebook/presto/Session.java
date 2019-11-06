@@ -13,6 +13,7 @@
  */
 package com.facebook.presto;
 
+import com.facebook.presto.metadata.Catalog;
 import com.facebook.presto.metadata.SessionPropertyManager;
 import com.facebook.presto.security.AccessControl;
 import com.facebook.presto.spi.ConnectorId;
@@ -31,6 +32,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import io.airlift.log.Logger;
 import io.airlift.units.DataSize;
 import io.airlift.units.Duration;
 
@@ -78,6 +80,8 @@ public final class Session
     private final Map<String, Map<String, String>> unprocessedCatalogProperties;
     private final SessionPropertyManager sessionPropertyManager;
     private final Map<String, String> preparedStatements;
+
+    private static final Logger LOGGER = Logger.get(Session.class);
 
     public Session(
             QueryId queryId,
@@ -288,6 +292,8 @@ public final class Session
 
     public Session beginTransactionId(TransactionId transactionId, TransactionManager transactionManager, AccessControl accessControl)
     {
+        LOGGER.info("beginTransactionId");
+
         requireNonNull(transactionId, "transactionId is null");
         checkArgument(!this.transactionId.isPresent(), "Session already has an active transaction");
         requireNonNull(transactionManager, "transactionManager is null");

@@ -222,6 +222,9 @@ public class QueryStateMachine
             Metadata metadata,
             WarningCollector warningCollector)
     {
+
+        QUERY_STATE_LOG.info("beginWithTicker");
+
         // If there is not an existing transaction, begin an auto commit transaction
         if (!session.getTransactionId().isPresent() && !transactionControl) {
             // TODO: make autocommit isolation level a session parameter

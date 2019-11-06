@@ -120,6 +120,7 @@ public class QueryMonitor
 
     public void queryCreatedEvent(BasicQueryInfo queryInfo)
     {
+        log.info("创建事件-queryCreatedEvent");
         eventListenerManager.queryCreated(
                 new QueryCreatedEvent(
                         queryInfo.getQueryStats().getCreateTime().toDate().toInstant(),
@@ -184,6 +185,8 @@ public class QueryMonitor
 
     public void queryCompletedEvent(QueryInfo queryInfo)
     {
+        log.info("完成事件-queryCompletedEvent");
+
         QueryStats queryStats = queryInfo.getQueryStats();
         eventListenerManager.queryCompleted(
                 new QueryCompletedEvent(

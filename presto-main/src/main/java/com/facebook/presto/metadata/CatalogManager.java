@@ -15,6 +15,7 @@ package com.facebook.presto.metadata;
 
 import com.facebook.presto.spi.ConnectorId;
 import com.google.common.collect.ImmutableList;
+import io.airlift.log.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -30,6 +31,8 @@ import static java.util.Objects.requireNonNull;
 public class CatalogManager
 {
     private final ConcurrentMap<String, Catalog> catalogs = new ConcurrentHashMap<>();
+
+    private static final Logger LOGGER = Logger.get(CatalogManager.class);
 
     public synchronized void registerCatalog(Catalog catalog)
     {
@@ -51,6 +54,8 @@ public class CatalogManager
 
     public Optional<Catalog> getCatalog(String catalogName)
     {
+        LOGGER.info("获取catalog:"+catalogName);
         return Optional.ofNullable(catalogs.get(catalogName));
     }
+
 }

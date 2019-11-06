@@ -14,6 +14,7 @@
 package com.facebook.presto.server;
 
 import com.facebook.presto.Session;
+import com.facebook.presto.execution.SqlQueryManager;
 import com.facebook.presto.metadata.SessionPropertyManager;
 import com.facebook.presto.security.AccessControl;
 import com.facebook.presto.spi.QueryId;
@@ -22,6 +23,7 @@ import com.facebook.presto.spi.type.TimeZoneKey;
 import com.facebook.presto.sql.SqlEnvironmentConfig;
 import com.facebook.presto.sql.SqlPath;
 import com.facebook.presto.transaction.TransactionManager;
+import io.airlift.log.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
@@ -45,6 +47,8 @@ public class QuerySessionSupplier
     private final Optional<String> path;
     private final Optional<TimeZoneKey> forcedSessionTimeZone;
 
+    private static final Logger LOGGER = Logger.get(QuerySessionSupplier.class);
+
     @Inject
     public QuerySessionSupplier(
             TransactionManager transactionManager,
@@ -60,9 +64,13 @@ public class QuerySessionSupplier
         this.forcedSessionTimeZone = requireNonNull(config.getForcedSessionTimeZone(), "forcedSessionTimeZone is null");
     }
 
+
     @Override
     public Session createSession(QueryId queryId, SessionContext context)
     {
+
+        LOGGER.info("将http-session转成presto-session，context.getClass："+context.getClass().getName());
+
         Identity identity = context.getIdentity();
         accessControl.checkCanSetUser(identity.getPrincipal(), identity.getUser());
 

@@ -185,6 +185,9 @@ public class SqlQueryExecution
             requireNonNull(query, "query is null");
             requireNonNull(session, "session is null");
             requireNonNull(self, "self is null");
+
+            LOGGER.info("SqlQueryExecution初始化QueryStateMachine");
+
             this.stateMachine = QueryStateMachine.begin(
                     query,
                     session,
@@ -801,7 +804,7 @@ public class SqlQueryExecution
                     costCalculator,
                     warningCollector);
 
-            LOGGER.info("创建QueryExecution对象");
+            LOGGER.info("创建SqlQueryExecution对象");
 
             return execution;
         }

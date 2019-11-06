@@ -311,7 +311,7 @@ class Query
      */
     public synchronized ListenableFuture<QueryResults> waitForResults(OptionalLong token, UriInfo uriInfo, String scheme, Duration wait, DataSize targetResultSize)
     {
-        log.info("waitForResults");
+//        log.info("waitForResults");
 
         // before waiting, check if this request has already been processed and cached
         if (token.isPresent()) {
@@ -326,7 +326,7 @@ class Query
         /***
          * 判断是否完成
          */
-        log.info(String.valueOf(listenableFuture.isDone()));
+//        log.info(String.valueOf(listenableFuture.isDone()));
         ListenableFuture<?> futureStateChange = addTimeout(
                 listenableFuture,
                 () -> null,
@@ -344,7 +344,7 @@ class Query
     private synchronized ListenableFuture<?> getFutureStateChange()
     {
 
-        log.info("getFutureStateChange");
+//        log.info("getFutureStateChange");
 
         // ensure the query has been submitted
         /***
@@ -773,7 +773,7 @@ class Query
 
         private synchronized void submitQuery()
         {
-            log.info("submitQuery");
+//            log.info("submitQuery");
 
             if (querySubmissionFuture != null) {
                 return;
