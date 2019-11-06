@@ -65,6 +65,9 @@ public class StaticCatalogStore
     public void loadCatalogs()
             throws Exception
     {
+
+        log.info("初始化catalog文件");
+
         if (!catalogsLoading.compareAndSet(false, true)) {
             return;
         }
@@ -81,6 +84,8 @@ public class StaticCatalogStore
     private void loadCatalog(File file)
             throws Exception
     {
+        log.info("加载Catalog数据源文件:"+file.getAbsolutePath());
+
         String catalogName = Files.getNameWithoutExtension(file.getName());
         if (disabledCatalogs.contains(catalogName)) {
             log.info("Skipping disabled catalog %s", catalogName);
