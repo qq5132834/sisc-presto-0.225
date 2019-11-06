@@ -21,6 +21,7 @@ import com.facebook.presto.spi.connector.ConnectorFactory;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import io.airlift.bootstrap.Bootstrap;
+import io.airlift.log.Logger;
 
 import java.util.Map;
 
@@ -35,6 +36,8 @@ public class JdbcConnectorFactory
     private final String name;
     private final Module module;
     private final ClassLoader classLoader;
+
+    private static final Logger LOGGER = Logger.get(JdbcConnectorFactory.class);
 
     public JdbcConnectorFactory(String name, Module module, ClassLoader classLoader)
     {
@@ -59,6 +62,10 @@ public class JdbcConnectorFactory
     @Override
     public Connector create(String catalogName, Map<String, String> requiredConfig, ConnectorContext context)
     {
+
+        LOGGER.info("catalogName:"+catalogName+",requiredConfig="+requiredConfig.toString());
+
+
         requireNonNull(requiredConfig, "requiredConfig is null");
 
         try (ThreadContextClassLoader ignored = new ThreadContextClassLoader(classLoader)) {

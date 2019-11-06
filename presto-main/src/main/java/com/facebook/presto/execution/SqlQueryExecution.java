@@ -98,6 +98,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class SqlQueryExecution
         implements QueryExecution
 {
+
+    private static final Logger LOGGER = Logger.get(SqlQueryExecution.class);
+
     private static final OutputBufferId OUTPUT_BUFFER_ID = new OutputBufferId(0);
 
     private final QueryStateMachine stateMachine;
@@ -349,6 +352,9 @@ public class SqlQueryExecution
 
     private void startExecution()
     {
+
+        LOGGER.info("startExecution");
+
         try (SetThreadName ignored = new SetThreadName("Query-%s", stateMachine.getQueryId())) {
             try {
                 // transition to planning
@@ -358,11 +364,15 @@ public class SqlQueryExecution
                 }
 
                 // analyze query
+                LOGGER.info("分析查询，获得计划");
                 PlanRoot plan = analyzeQuery();
 
-                metadata.beginQuery(getSession(), plan.getConnectors());
+                Set<ConnectorId> setConnectorId = plan.getConnectors();
+                metadata.beginQuery(getSession(), setConnectorId);
+                LOGGER.info("metadata.class="+metadata.getClass().getName());
 
                 // plan distribution of query
+                LOGGER.info("创建调度器和步骤，准备分发计划");
                 planDistribution(plan);
 
                 // transition to starting
@@ -494,6 +504,7 @@ public class SqlQueryExecution
 
         SplitSourceFactory splitSourceFactory = new SplitSourceFactory(splitSourceProvider);
         // build the stage execution objects (this doesn't schedule execution)
+        LOGGER.info("创建调度");
         SqlQueryScheduler scheduler = createSqlQueryScheduler(
                 stateMachine,
                 locationFactory,
@@ -633,11 +644,22 @@ public class SqlQueryExecution
         private final boolean summarizeTaskInfos;
         private final Set<ConnectorId> connectors;
 
+        private static final Logger LOGGER = Logger.get(PlanRoot.class);
+
         public PlanRoot(SubPlan root, boolean summarizeTaskInfos, Set<ConnectorId> connectors)
         {
+            LOGGER.info("创建PlanRoot对象");
             this.root = requireNonNull(root, "root is null");
             this.summarizeTaskInfos = summarizeTaskInfos;
             this.connectors = ImmutableSet.copyOf(connectors);
+
+            if(this.connectors!=null){
+                int i = 0;
+                for(ConnectorId connectorId : this.connectors){
+                    LOGGER.info("datasource-"+(++i)+":"+connectorId.getCatalogName());
+                }
+            }
+
         }
 
         public SubPlan getRoot()
@@ -652,6 +674,7 @@ public class SqlQueryExecution
 
         public Set<ConnectorId> getConnectors()
         {
+            LOGGER.info("PlanRoot.getConnectors");
             return connectors;
         }
     }

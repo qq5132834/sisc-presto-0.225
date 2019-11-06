@@ -36,6 +36,7 @@ import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.multibindings.MultibindingsScanner;
 import com.google.inject.multibindings.ProvidesIntoSet;
+import io.airlift.log.Logger;
 
 import javax.inject.Inject;
 
@@ -88,11 +89,18 @@ public class SystemConnectorModule
 
     private static class SystemConnectorRegistrar
     {
+
+        private static final Logger LOGGER = Logger.get(SystemConnectorRegistrar.class);
+
         @Inject
         public SystemConnectorRegistrar(ConnectorManager manager, GlobalSystemConnectorFactory globalSystemConnectorFactory)
         {
+            LOGGER.info("系统连接数据源注册");
+
             manager.addConnectorFactory(globalSystemConnectorFactory);
+
             manager.createConnection(GlobalSystemConnector.NAME, GlobalSystemConnector.NAME, ImmutableMap.of());
+
         }
     }
 }

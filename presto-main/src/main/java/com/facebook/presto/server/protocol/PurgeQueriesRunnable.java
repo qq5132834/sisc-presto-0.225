@@ -45,7 +45,11 @@ class PurgeQueriesRunnable
             // from the query manager.  Then we remove only the queries in the snapshot and
             // not live queries set.  If we did this in the other order, a query could be
             // registered between fetching the live queries and inspecting the queryIds set.
+
+//            log.info("queries.keySet.size:"+ImmutableSet.copyOf(queries.keySet()).size());
+
             for (QueryId queryId : ImmutableSet.copyOf(queries.keySet())) {
+
                 Query query = queries.get(queryId);
                 if (!query.isSubmissionFinished()) {
                     continue;

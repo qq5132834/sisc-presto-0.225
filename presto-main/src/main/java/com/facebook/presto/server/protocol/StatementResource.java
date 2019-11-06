@@ -104,6 +104,10 @@ public class StatementResource
     private final ScheduledExecutorService timeoutExecutor;
 
     private final ConcurrentMap<QueryId, Query> queries = new ConcurrentHashMap<>();
+
+    /***
+     * 创建单个线程池
+     */
     private final ScheduledExecutorService queryPurger = newSingleThreadScheduledExecutor(threadsNamed("query-purger"));
 
     private final CounterStat createQueryRequests = new CounterStat();

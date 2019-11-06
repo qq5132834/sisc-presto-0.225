@@ -18,6 +18,7 @@ import com.facebook.presto.cost.CostCalculator.EstimatedExchanges;
 import com.facebook.presto.cost.CostComparator;
 import com.facebook.presto.cost.StatsCalculator;
 import com.facebook.presto.cost.TaskCountEstimator;
+import com.facebook.presto.execution.SqlQueryManager;
 import com.facebook.presto.metadata.Metadata;
 import com.facebook.presto.split.PageSourceManager;
 import com.facebook.presto.split.SplitManager;
@@ -126,6 +127,7 @@ import com.facebook.presto.sql.planner.optimizations.UnaliasSymbolReferences;
 import com.facebook.presto.sql.planner.optimizations.WindowFilterPushDown;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import io.airlift.log.Logger;
 import org.weakref.jmx.MBeanExporter;
 
 import javax.annotation.PostConstruct;
@@ -141,6 +143,8 @@ public class PlanOptimizers
     private final RuleStatsRecorder ruleStats = new RuleStatsRecorder();
     private final OptimizerStatsRecorder optimizerStats = new OptimizerStatsRecorder();
     private final MBeanExporter exporter;
+
+    private static final Logger log = Logger.get(PlanOptimizers.class);
 
     @Inject
     public PlanOptimizers(
@@ -546,6 +550,7 @@ public class PlanOptimizers
 
     public List<PlanOptimizer> get()
     {
+        log.info("PlanOptimizer.get");
         return optimizers;
     }
 }

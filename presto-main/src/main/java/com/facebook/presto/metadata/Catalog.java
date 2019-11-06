@@ -13,8 +13,10 @@
  */
 package com.facebook.presto.metadata;
 
+import com.facebook.presto.execution.SqlQueryManager;
 import com.facebook.presto.spi.ConnectorId;
 import com.facebook.presto.spi.connector.Connector;
+import io.airlift.log.Logger;
 
 import static com.facebook.presto.metadata.MetadataUtil.checkCatalogName;
 import static com.google.common.base.MoreObjects.toStringHelper;
@@ -31,6 +33,8 @@ public class Catalog
 
     private final ConnectorId systemTablesId;
     private final Connector systemTables;
+
+    private static final Logger LOGGER = Logger.get(Catalog.class);
 
     public Catalog(
             String catalogName,
@@ -72,6 +76,9 @@ public class Catalog
 
     public Connector getConnector(ConnectorId connectorId)
     {
+
+        LOGGER.info("getConnector.connectorId="+connectorId.getCatalogName());
+
         if (this.connectorId.equals(connectorId)) {
             return connector;
         }

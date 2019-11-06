@@ -38,6 +38,7 @@ public class TpchConnectorFactory
     private final boolean predicatePushdownEnabled;
     private final boolean partitioningEnabled;
 
+
     public TpchConnectorFactory()
     {
         this(Runtime.getRuntime().availableProcessors());
@@ -70,6 +71,8 @@ public class TpchConnectorFactory
     @Override
     public Connector create(String catalogName, Map<String, String> properties, ConnectorContext context)
     {
+        System.out.println("TpchConnectorFactory.create");
+
         int splitsPerNode = getSplitsPerNode(properties);
         ColumnNaming columnNaming = ColumnNaming.valueOf(properties.getOrDefault(TPCH_COLUMN_NAMING_PROPERTY, ColumnNaming.SIMPLIFIED.name()).toUpperCase());
         NodeManager nodeManager = context.getNodeManager();

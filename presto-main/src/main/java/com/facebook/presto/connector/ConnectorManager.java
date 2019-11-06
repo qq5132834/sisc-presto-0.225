@@ -191,11 +191,19 @@ public class ConnectorManager
         requireNonNull(connectorName, "connectorName is null");
         ConnectorFactory connectorFactory = connectorFactories.get(connectorName);
         checkArgument(connectorFactory != null, "No factory for connector %s", connectorName);
-        return createConnection(catalogName, connectorFactory, properties);
+
+        log.info("创建数据源连接");
+        log.info("catalogName:"+catalogName);
+        log.info("properties:"+properties.toString());
+        log.info("connectorFactory.class:"+connectorFactory.getClass().getName());
+
+        ConnectorId connectorId = createConnection(catalogName, connectorFactory, properties);
+        return connectorId;
     }
 
     private synchronized ConnectorId createConnection(String catalogName, ConnectorFactory connectorFactory, Map<String, String> properties)
     {
+
         checkState(!stopped.get(), "ConnectorManager is stopped");
         requireNonNull(catalogName, "catalogName is null");
         requireNonNull(properties, "properties is null");
@@ -212,6 +220,8 @@ public class ConnectorManager
 
     private synchronized void addCatalogConnector(String catalogName, ConnectorId connectorId, ConnectorFactory factory, Map<String, String> properties)
     {
+        log.info("添加CatalogConnector数据源连接");
+
         // create all connectors before adding, so a broken connector does not leave the system half updated
         MaterializedConnector connector = new MaterializedConnector(connectorId, createConnector(connectorId, factory, properties));
 
