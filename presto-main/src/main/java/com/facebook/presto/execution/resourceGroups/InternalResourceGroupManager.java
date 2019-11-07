@@ -113,7 +113,13 @@ public final class InternalResourceGroupManager<C>
         log.info("submit");
         checkState(configurationManager.get() != null, "configurationManager not set");
         createGroupIfNecessary(selectionContext, executor);
-        groups.get(selectionContext.getResourceGroupId()).run(queryExecution);
+
+        //拆分
+//      groups.get(selectionContext.getResourceGroupId()).run(queryExecution);
+
+        InternalResourceGroup internalResourceGroup = groups.get(selectionContext.getResourceGroupId());
+        internalResourceGroup.run(queryExecution);
+
     }
 
     @Override

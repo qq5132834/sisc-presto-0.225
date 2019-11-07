@@ -14,6 +14,7 @@
 package com.facebook.presto.execution.resourceGroups;
 
 import com.facebook.presto.execution.ManagedQueryExecution;
+import com.facebook.presto.execution.SqlQueryExecution;
 import com.facebook.presto.execution.resourceGroups.WeightedFairQueue.Usage;
 import com.facebook.presto.server.QueryStateInfo;
 import com.facebook.presto.server.ResourceGroupInfo;
@@ -23,6 +24,7 @@ import com.facebook.presto.spi.resourceGroups.ResourceGroupId;
 import com.facebook.presto.spi.resourceGroups.ResourceGroupState;
 import com.facebook.presto.spi.resourceGroups.SchedulingPolicy;
 import com.google.common.collect.ImmutableList;
+import io.airlift.log.Logger;
 import io.airlift.stats.CounterStat;
 import io.airlift.units.DataSize;
 import io.airlift.units.Duration;
@@ -137,6 +139,8 @@ public class InternalResourceGroup
     private long lastStartMillis;
     @GuardedBy("root")
     private final CounterStat timeBetweenStartsSec = new CounterStat();
+
+    private static final Logger LOGGER = Logger.get(InternalResourceGroup.class);
 
     protected InternalResourceGroup(Optional<InternalResourceGroup> parent, String name, BiConsumer<InternalResourceGroup, Boolean> jmxExportListener, Executor executor)
     {
@@ -583,6 +587,9 @@ public class InternalResourceGroup
 
     public void run(ManagedQueryExecution query)
     {
+
+        LOGGER.info("run");
+
         synchronized (root) {
             if (!subGroups.isEmpty()) {
                 throw new PrestoException(INVALID_RESOURCE_GROUP, format("Cannot add queries to %s. It is not a leaf group.", id));
@@ -604,6 +611,7 @@ public class InternalResourceGroup
                 return;
             }
             if (canRun) {
+                LOGGER.info("canRun:"+canRun);
                 startInBackground(query);
             }
             else {
@@ -652,6 +660,9 @@ public class InternalResourceGroup
 
     private void startInBackground(ManagedQueryExecution query)
     {
+
+        LOGGER.info("startInBackground");
+
         checkState(Thread.holdsLock(root), "Must hold lock to start a query");
         synchronized (root) {
             runningQueries.add(query);
@@ -662,6 +673,7 @@ public class InternalResourceGroup
                 group = group.parent.get();
             }
             updateEligibility();
+            LOGGER.info("query::start");
             executor.execute(query::start);
         }
     }

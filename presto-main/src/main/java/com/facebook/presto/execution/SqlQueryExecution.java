@@ -341,6 +341,7 @@ public class SqlQueryExecution
     @Override
     public void start()
     {
+        LOGGER.info("【重要节点】start");
         if (stateMachine.transitionToWaitingForResources()) {
             waitForMinimumWorkers();
         }
@@ -349,6 +350,7 @@ public class SqlQueryExecution
     private void waitForMinimumWorkers()
     {
         ListenableFuture<?> minimumWorkerFuture = clusterSizeMonitor.waitForMinimumWorkers();
+        //在一个线程里运行
         addSuccessCallback(minimumWorkerFuture, () -> queryExecutor.submit(this::startExecution));
         addExceptionCallback(minimumWorkerFuture, throwable -> queryExecutor.submit(() -> stateMachine.transitionToFailed(throwable)));
     }
@@ -356,7 +358,7 @@ public class SqlQueryExecution
     private void startExecution()
     {
 
-        LOGGER.info("startExecution");
+        LOGGER.info("【重要节点】startExecution");
 
         try (SetThreadName ignored = new SetThreadName("Query-%s", stateMachine.getQueryId())) {
             try {
