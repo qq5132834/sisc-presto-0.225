@@ -57,7 +57,13 @@ public class QueryPreparer
             throws ParsingException, PrestoException, SemanticException
     {
         LOGGER.info("prepareQuery，参数query="+query);
-        Statement wrappedStatement = sqlParser.createStatement(query, createParsingOptions(session, warningCollector));
+        /**
+         *改写sqlParser创建Statement方式
+         */
+//        Statement wrappedStatement = sqlParser.createStatement(query, createParsingOptions(session, warningCollector));
+        LOGGER.info("修改创建Statement方式");
+        Statement wrappedStatement = sqlParser.createStatement(query);
+
         return prepareQuery(session, wrappedStatement, warningCollector);
     }
 
