@@ -18,6 +18,7 @@ import com.facebook.presto.execution.resourceGroups.InternalResourceGroup.RootIn
 import com.facebook.presto.server.QueryStateInfo;
 import com.facebook.presto.server.ResourceGroupInfo;
 import com.google.common.collect.ImmutableSet;
+import io.airlift.log.Logging;
 import io.airlift.units.DataSize;
 import io.airlift.units.Duration;
 import org.apache.commons.math3.distribution.BinomialDistribution;
@@ -57,9 +58,15 @@ import static org.testng.Assert.assertTrue;
 
 public class TestResourceGroups
 {
+    /***
+     * 测试队列是否已满
+     */
     @Test(timeOut = 10_000)
     public void testQueueFull()
     {
+        //添加日志初始化
+        Logging.initialize();
+
         RootInternalResourceGroup root = new RootInternalResourceGroup("root", (group, export) -> {}, directExecutor());
         root.setSoftMemoryLimit(new DataSize(1, MEGABYTE));
         root.setMaxQueuedQueries(1);
@@ -76,9 +83,16 @@ public class TestResourceGroups
         assertEquals(query3.getThrowable().getMessage(), "Too many queued queries for \"root\"");
     }
 
+    /***
+     * 测试公平的资格
+     */
     @Test(timeOut = 10_000)
     public void testFairEligibility()
     {
+
+        //添加日志初始化
+        Logging.initialize();
+
         RootInternalResourceGroup root = new RootInternalResourceGroup("root", (group, export) -> {}, directExecutor());
         root.setSoftMemoryLimit(new DataSize(1, MEGABYTE));
         root.setMaxQueuedQueries(4);
@@ -131,9 +145,16 @@ public class TestResourceGroups
         assertEquals(query2b.getState(), QUEUED);
     }
 
+    /***
+     * 测试设置调度策略
+     */
     @Test
     public void testSetSchedulingPolicy()
     {
+
+        //添加日志初始化
+        Logging.initialize();
+
         RootInternalResourceGroup root = new RootInternalResourceGroup("root", (group, export) -> {}, directExecutor());
         root.setSoftMemoryLimit(new DataSize(1, MEGABYTE));
         root.setMaxQueuedQueries(4);
@@ -173,9 +194,16 @@ public class TestResourceGroups
         assertEquals(root.getOrCreateSubGroup("2").getSchedulingPolicy(), QUERY_PRIORITY);
     }
 
+    /***
+     * 测试队列公平
+     */
     @Test(timeOut = 10_000)
     public void testFairQueuing()
     {
+
+        //添加日志初始化
+        Logging.initialize();
+
         RootInternalResourceGroup root = new RootInternalResourceGroup("root", (group, export) -> {}, directExecutor());
         root.setSoftMemoryLimit(new DataSize(1, MEGABYTE));
         root.setMaxQueuedQueries(4);
@@ -215,9 +243,15 @@ public class TestResourceGroups
         assertEquals(query1c.getState(), QUEUED);
     }
 
+    /***
+     * 测试内存限制
+     */
     @Test(timeOut = 10_000)
     public void testMemoryLimit()
     {
+        //添加日志初始化
+        Logging.initialize();
+
         RootInternalResourceGroup root = new RootInternalResourceGroup("root", (group, export) -> {}, directExecutor());
         root.setSoftMemoryLimit(new DataSize(1, BYTE));
         root.setMaxQueuedQueries(4);
@@ -240,9 +274,16 @@ public class TestResourceGroups
         assertEquals(query3.getState(), RUNNING);
     }
 
+    /***
+     * 测试子组内存限制
+     */
     @Test
     public void testSubgroupMemoryLimit()
     {
+
+        //添加日志初始化
+        Logging.initialize();
+
         RootInternalResourceGroup root = new RootInternalResourceGroup("root", (group, export) -> {}, directExecutor());
         root.setSoftMemoryLimit(new DataSize(10, BYTE));
         root.setMaxQueuedQueries(4);
@@ -270,9 +311,15 @@ public class TestResourceGroups
         assertEquals(query3.getState(), RUNNING);
     }
 
+    /***
+     * 测试软CPU限制
+     */
     @Test(timeOut = 10_000)
     public void testSoftCpuLimit()
     {
+        //添加日志初始化
+        Logging.initialize();
+
         RootInternalResourceGroup root = new RootInternalResourceGroup("root", (group, export) -> {}, directExecutor());
         root.setSoftMemoryLimit(new DataSize(1, BYTE));
         root.setSoftCpuLimit(new Duration(1, SECONDS));
