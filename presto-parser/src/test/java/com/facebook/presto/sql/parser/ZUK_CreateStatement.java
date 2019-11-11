@@ -15,9 +15,9 @@ import static com.facebook.presto.sql.parser.ParsingOptions.DecimalLiteralTreatm
  * 参考：TestStatementBuilder.java中代码
  *
  */
-public class TestCreateStatement {
+public class ZUK_CreateStatement {
 
-    private static final Logger log = Logger.get(TestCreateStatement.class);
+    private static final Logger log = Logger.get(ZUK_CreateStatement.class);
 
     /***
      * 将sql转换成Statement
