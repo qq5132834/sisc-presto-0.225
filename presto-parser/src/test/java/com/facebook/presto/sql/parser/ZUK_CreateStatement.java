@@ -11,6 +11,9 @@ import static com.facebook.presto.sql.parser.ParsingOptions.DecimalLiteralTreatm
 
 /***
  * 测试生成Statement
+ *
+ * 参考：TestStatementBuilder.java中代码
+ *
  */
 public class TestCreateStatement {
 
