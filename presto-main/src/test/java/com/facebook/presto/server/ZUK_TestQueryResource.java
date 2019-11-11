@@ -42,12 +42,12 @@ import static org.testng.Assert.fail;
  * 模拟增个任务请求的测试用例
  */
 @Test(singleThreaded = true)
-public class TestQueryResource
+public class ZUK_TestQueryResource
 {
     private final HttpClient client = new JettyHttpClient();
     private TestingPrestoServer server;
 
-    public TestQueryResource()
+    public ZUK_TestQueryResource()
             throws Exception
     {
         server = new TestingPrestoServer();

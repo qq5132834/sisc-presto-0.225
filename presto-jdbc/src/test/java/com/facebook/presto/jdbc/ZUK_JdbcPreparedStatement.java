@@ -1,21 +1,18 @@
 package com.facebook.presto.jdbc;
 
 
-import com.facebook.presto.server.testing.TestingPrestoServer;
-import com.google.common.collect.ImmutableList;
 import org.testng.annotations.Test;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import static java.lang.String.format;
 
 /***
  *
  */
-public class Pod_JdbcPreparedStatement {
+public class ZUK_JdbcPreparedStatement {
 
 
 //    @Test
