@@ -418,7 +418,7 @@ public class SqlQueryManager
 //                }
 //            }
 
-            LOGGER.info("重要节点【根据statement的类型，获取对应的QueryExectionFactory】");
+            LOGGER.info("重要节点【根据statement的类型找到对应的QueryExectionFactory】");
             // create query execution
             QueryExecutionFactory<?> queryExecutionFactory = executionFactories.get(preparedQuery.getStatement().getClass());
 
@@ -500,8 +500,12 @@ public class SqlQueryManager
 
         // start the query in the background
         try {
-            LOGGER.info("在后台启动查询");
-            resourceGroupManager.submit(preparedQuery.getStatement(), queryExecution, selectionContext, unboundedExecutorService);
+            LOGGER.info("将queryExcution提交到队列中执行");
+//            resourceGroupManager.submit(preparedQuery.getStatement(), queryExecution, selectionContext, unboundedExecutorService);
+
+            LOGGER.info("直接运行queryExecution，不加入resourceGroupManager队列中");
+            queryExecution.start();
+
         }
         catch (Throwable e) {
             failQuery(queryId, e);
