@@ -20,6 +20,7 @@ import com.facebook.presto.spi.resourceGroups.QueryType;
 import com.facebook.presto.sql.analyzer.SemanticException;
 import com.facebook.presto.sql.parser.ParsingException;
 import com.facebook.presto.sql.parser.SqlParser;
+import com.facebook.presto.sql.parser.ZUKSqlParser;
 import com.facebook.presto.sql.tree.Execute;
 import com.facebook.presto.sql.tree.Explain;
 import com.facebook.presto.sql.tree.Expression;
@@ -62,7 +63,8 @@ public class QueryPreparer
          */
 //        Statement wrappedStatement = sqlParser.createStatement(query, createParsingOptions(session, warningCollector));
         LOGGER.info("修改创建Statement方式");
-        Statement wrappedStatement = sqlParser.createStatement(query);
+//        Statement wrappedStatement = sqlParser.createStatement(query);
+        Statement wrappedStatement = new ZUKSqlParser().createStatement(query);
 
         return prepareQuery(session, wrappedStatement, warningCollector);
     }
