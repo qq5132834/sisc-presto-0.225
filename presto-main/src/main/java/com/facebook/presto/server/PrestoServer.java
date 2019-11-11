@@ -117,22 +117,6 @@ public class PrestoServer
                 new AccessControlModule(),
                 new EventListenerModule(),
                 new ServerMainModule(sqlParserOptions),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 new GracefulShutdownModule(),
                 new WarningCollectorModule());
 
@@ -142,23 +126,9 @@ public class PrestoServer
 
         try {
             Injector injector = app.strictConfig().initialize();
-
             injector.getInstance(PluginManager.class).loadPlugins();
-
-
-
-
-
-
-
-
-
-
-
-
-
             injector.getInstance(StaticCatalogStore.class).loadCatalogs();
-
+            
             // TODO: remove this huge hack
             updateConnectorIds(
                     injector.getInstance(Announcer.class),
