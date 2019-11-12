@@ -17,11 +17,14 @@ import com.facebook.presto.spi.PrestoWarning;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.sun.org.slf4j.internal.Logger;
+import com.sun.org.slf4j.internal.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import java.net.URI;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.facebook.presto.client.FixJsonDataUtils.fixData;
@@ -46,6 +49,8 @@ public class QueryResults
     private final List<PrestoWarning> warnings;
     private final String updateType;
     private final Long updateCount;
+
+
 
     @JsonCreator
     public QueryResults(
@@ -100,6 +105,44 @@ public class QueryResults
         this.warnings = ImmutableList.copyOf(requireNonNull(warnings, "warnings is null"));
         this.updateType = updateType;
         this.updateCount = updateCount;
+
+        this.showData(this);
+
+    }
+
+    /***
+     * 通过System.out.println的方式将QueryResults中的数据输出
+     * @param queryResults
+     */
+    private void showData(QueryResults queryResults){
+
+        System.out.print(queryResults.getId()+"/"+queryResults.getStats()+"/"+queryResults.getInfoUri().toString()+"/"+queryResults.getNextUri().toString()+"/"+queryResults.getUpdateType()+"/"+queryResults.getUpdateCount());
+
+        List<Column> columns = queryResults.getColumns();
+        Iterable<List<Object>> data = queryResults.getData();
+        if(columns!=null){
+            System.out.print("数据表列属性：");
+            for (Column column: columns ) {
+                System.out.print(column.getName()+"/"+column.getType()+";");
+            }
+            System.out.println("");
+        }
+
+        if(data!=null){
+            Iterator<List<Object>> iterator = data.iterator();
+            while (iterator.hasNext()){
+                List<Object> list = iterator.next();
+                if(list!=null){
+                    System.out.print("数据表列数值：");
+                    for(Object obj : list){
+                        System.out.print(String.valueOf(obj) + "/");
+                    }
+                    System.out.println("");
+                }
+            }
+
+        }
+
     }
 
     @JsonProperty
