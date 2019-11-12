@@ -106,43 +106,7 @@ public class QueryResults
         this.updateType = updateType;
         this.updateCount = updateCount;
 
-        this.showData(this);
-
-    }
-
-    /***
-     * 通过System.out.println的方式将QueryResults中的数据输出
-     * @param queryResults
-     */
-    private void showData(QueryResults queryResults){
-
-        System.out.print(queryResults.getId()+"/"+queryResults.getStats()+"/"+queryResults.getInfoUri().toString()+"/"+queryResults.getNextUri().toString()+"/"+queryResults.getUpdateType()+"/"+queryResults.getUpdateCount());
-
-        List<Column> columns = queryResults.getColumns();
-        Iterable<List<Object>> data = queryResults.getData();
-        if(columns!=null){
-            System.out.print("数据表列属性：");
-            for (Column column: columns ) {
-                System.out.print(column.getName()+"/"+column.getType()+";");
-            }
-            System.out.println("");
-        }
-
-        if(data!=null){
-            Iterator<List<Object>> iterator = data.iterator();
-            while (iterator.hasNext()){
-                List<Object> list = iterator.next();
-                if(list!=null){
-                    System.out.print("数据表列数值：");
-                    for(Object obj : list){
-                        System.out.print(String.valueOf(obj) + "/");
-                    }
-                    System.out.println("");
-                }
-            }
-
-        }
-
+        System.out.println(this.toString());
     }
 
     @JsonProperty
@@ -233,16 +197,64 @@ public class QueryResults
     public String toString()
     {
         return toStringHelper(this)
-                .add("id", id)
-                .add("infoUri", infoUri)
-                .add("partialCancelUri", partialCancelUri)
-                .add("nextUri", nextUri)
-                .add("columns", columns)
-                .add("hasData", data != null)
-                .add("stats", stats)
-                .add("error", error)
-                .add("updateType", updateType)
-                .add("updateCount", updateCount)
+                .add("\nid", id)
+                .add("\ninfoUri", infoUri)
+                .add("\npartialCancelUri", partialCancelUri)
+                .add("\nnextUri", nextUri)
+//                .add("columns", columns)
+                .add("\ncolumns", this.columnsToString(columns))
+                .add("\nhasData", data != null)
+                .add("\ndata", this.dataToString(data))
+                .add("\nstats", stats)
+                .add("\nerror", error)
+                .add("\nupdateType", updateType)
+                .add("\nupdateCount", updateCount)
                 .toString();
     }
+
+    /***
+     * 字段转字符串
+     * @param columns
+     * @return
+     */
+    private String columnsToString(List<Column> columns){
+
+        String columnStr = "\n";
+        if(columns!=null){
+            for (Column column: columns ) {
+                String str = column.getName()+"/"+column.getType()+";";
+                columnStr = columnStr + str;
+            }
+        }
+        return columnStr;
+    }
+
+
+    /***
+     * 通过System.out.println的方式将QueryResults中的数据输出
+     * @param queryResults
+     */
+    private String dataToString(Iterable<List<Object>> data){
+
+        String dataStr = "\n";
+        if(data!=null){
+            Iterator<List<Object>> iterator = data.iterator();
+            while (iterator.hasNext()){
+                List<Object> list = iterator.next();
+                if(list!=null){
+                    for(Object obj : list){
+                        String str = String.valueOf(obj) + "/";
+                        dataStr = dataStr + str;
+                    }
+                    dataStr = dataStr + "\n";
+                }
+            }
+
+        }
+
+        return dataStr;
+
+    }
+
+
 }
