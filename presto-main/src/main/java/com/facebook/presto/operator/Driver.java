@@ -13,24 +13,34 @@
  */
 package com.facebook.presto.operator;
 
+import com.facebook.presto.block.BlockEncodingManager;
 import com.facebook.presto.execution.ScheduledSplit;
 import com.facebook.presto.execution.TaskSource;
+import com.facebook.presto.execution.buffer.PagesSerde;
+import com.facebook.presto.execution.buffer.PagesSerdeFactory;
+import com.facebook.presto.execution.buffer.SerializedPage;
 import com.facebook.presto.metadata.Split;
 import com.facebook.presto.spi.Page;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.UpdatablePageSource;
 import com.facebook.presto.spi.plan.PlanNodeId;
+import com.facebook.presto.type.TypeRegistry;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.VerifyException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.common.reflect.TypeToken;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import io.airlift.compress.lz4.Lz4Compressor;
+import io.airlift.compress.lz4.Lz4Decompressor;
 import io.airlift.log.Logger;
 import io.airlift.units.Duration;
 
 import javax.annotation.concurrent.GuardedBy;
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.Response;
 
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -44,6 +54,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
+import static com.facebook.presto.client.PrestoHeaders.*;
+import static com.facebook.presto.client.PrestoHeaders.PRESTO_BUFFER_COMPLETE;
 import static com.facebook.presto.operator.Operator.NOT_BLOCKED;
 import static com.facebook.presto.spi.StandardErrorCode.GENERIC_INTERNAL_ERROR;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -219,6 +231,8 @@ public class Driver
     @GuardedBy("exclusiveLock")
     private void processNewSources()
     {
+//        log.info("processNewSources");
+
         checkLockHeld("Lock must be held to call processNewSources");
 
         // only update if the driver is still alive
@@ -243,7 +257,10 @@ public class Driver
         Set<ScheduledSplit> newSplits = Sets.difference(newSource.getSplits(), currentTaskSource.getSplits());
 
         // add new splits
+        log.info("添加新拆分:"+this.sourceOperator.getClass().getName());
         SourceOperator sourceOperator = this.sourceOperator.orElseThrow(VerifyException::new);
+        log.info("sourceOperator:"+sourceOperator.getClass().getName());
+
         for (ScheduledSplit newSplit : newSplits) {
             Split split = newSplit.getSplit();
 
@@ -346,6 +363,8 @@ public class Driver
     @GuardedBy("exclusiveLock")
     private ListenableFuture<?> processInternal(OperationTimer operationTimer)
     {
+//        log.info("processInternal");
+
         checkLockHeld("Lock must be held to call processInternal");
 
         handleMemoryRevoke();
@@ -375,12 +394,46 @@ public class Driver
 
                 // if the current operator is not finished and next operator isn't blocked and needs input...
                 if (!current.isFinished() && !getBlockedFuture(next).isPresent() && next.needsInput()) {
+
+                    /***
+                     * 会根据不同的 sql 操作,得到不同的 Operator 实现类.然后根据实现,调用对应的 connector . 该方法返回的是一个 Page, Page 相当于一张 RDBMS 的表,只不过 Page 是列存储的. 获取 page 的时候,会根据 [Block 类型,文件格式]等,使用相应的 Loader 来 load 取数据.
+                     *
+                     */
+                    log.info("current.getOutput:"+current.getClass().getName());
                     // get an output page from current operator
                     Page page = current.getOutput();
+
+
+                    if(page!=null){
+
+                        log.info(page.toString());
+                        //将page转成response输出
+                        PagesSerde pagesSerde =  new PagesSerde(
+                                new BlockEncodingManager(new TypeRegistry()),
+                                Optional.of(new Lz4Compressor()),
+                                Optional.of(new Lz4Decompressor()),
+                                Optional.empty());
+
+                        SerializedPage serializedPage = pagesSerde.serialize(page);
+                        log.info(serializedPage.toString());
+                        List<SerializedPage> serializedPages = new ArrayList<>();
+                        serializedPages.add(serializedPage);
+                        GenericEntity<?> entity = new GenericEntity<>(serializedPages, new TypeToken<List<Page>>() {}.getType());
+                        Response.Status status = Response.Status.OK;
+                        Response response = Response.status(status).entity(entity).build();
+                        log.info(response.toString());
+                    }
+
                     current.getOperatorContext().recordGetOutput(operationTimer, page);
 
                     // if we got an output page, add it to the next operator
                     if (page != null && page.getPositionCount() != 0) {
+
+                        /***
+                         * 下一个 Operator 如果需要上一个 Operator 的输出,则会调用该方法
+                         *
+                         */
+                        log.info("next.addInput:"+next.getClass().getName());
                         next.addInput(page);
                         next.getOperatorContext().recordAddInput(operationTimer, page);
                         movedPage = true;

@@ -24,8 +24,10 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import io.airlift.http.client.HttpClient;
+import io.airlift.log.Logger;
 import io.airlift.units.DataSize;
 import io.airlift.units.Duration;
+import sun.rmi.runtime.Log;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -69,6 +71,8 @@ import static java.util.Objects.requireNonNull;
 public class ExchangeClient
         implements Closeable
 {
+    private Logger log = Logger.get(ExchangeClient.class);
+
     private static final SerializedPage NO_MORE_PAGES = new SerializedPage(EMPTY_SLICE, PageCodecMarker.none(), 0, 0);
 
     private final long bufferCapacity;
@@ -227,7 +231,9 @@ public class ExchangeClient
 
     public WorkProcessor<SerializedPage> pages()
     {
+
         return WorkProcessor.create(() -> {
+            log.info("获取page中block数据");
             SerializedPage page = pollPage();
             if (page == null) {
                 if (isFinished()) {

@@ -38,6 +38,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.airlift.concurrent.SetThreadName;
+import io.airlift.log.Logger;
 import io.airlift.units.Duration;
 
 import javax.annotation.Nullable;
@@ -1017,6 +1018,8 @@ public class SqlTaskExecution
         private final DriverContext driverContext;
         private final Lifespan lifespan;
 
+        private final static Logger log = Logger.get(DriverSplitRunner.class);
+
         @GuardedBy("this")
         private boolean closed;
 
@@ -1060,6 +1063,7 @@ public class SqlTaskExecution
         @Override
         public ListenableFuture<?> processFor(Duration duration)
         {
+            log.info("processFor");
             Driver driver;
             synchronized (this) {
                 // if close() was called before we get here, there's not point in even creating the driver

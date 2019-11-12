@@ -425,6 +425,8 @@ public class SqlQueryManager
             if (queryExecutionFactory == null) {
                 throw new PrestoException(NOT_SUPPORTED, "Unsupported statement type: " + preparedQuery.getStatement().getClass().getSimpleName());
             }
+
+            LOGGER.info("异步创建queryExcution");
             queryExecution = queryExecutionFactory.createQueryExecution(
                     query,
                     session,
@@ -432,6 +434,16 @@ public class SqlQueryManager
                     selectionContext.getResourceGroupId(),
                     warningCollector,
                     queryType);
+
+
+            // 这里也可以直接执行
+//            if(true){
+//                LOGGER.info("queryExecution.start()");
+//                queryExecution.start();
+//                return;
+//            }
+
+
         }
         catch (RuntimeException e) {
             // This is intentionally not a method, since after the state change listener is registered

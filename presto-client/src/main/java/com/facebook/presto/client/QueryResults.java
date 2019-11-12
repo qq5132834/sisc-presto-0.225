@@ -106,7 +106,7 @@ public class QueryResults
         this.updateType = updateType;
         this.updateCount = updateCount;
 
-        System.out.println(this.toString());
+//        System.out.println(this.toString());
     }
 
     @JsonProperty

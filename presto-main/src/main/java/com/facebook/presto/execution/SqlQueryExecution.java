@@ -360,6 +360,7 @@ public class SqlQueryExecution
 
         LOGGER.info("【重要节点】startExecution");
 
+
         try (SetThreadName ignored = new SetThreadName("Query-%s", stateMachine.getQueryId())) {
             try {
                 // transition to planning
@@ -383,6 +384,7 @@ public class SqlQueryExecution
                 // transition to starting
                 if (!stateMachine.transitionToStarting()) {
                     // query already started or finished
+                    LOGGER.info("query already started or finished");
                     return;
                 }
 

@@ -212,6 +212,8 @@ public class TaskExecutor
     @PostConstruct
     public synchronized void start()
     {
+        log.info("TaskExecutor.start");
+
         checkState(!closed, "TaskExecutor is closed");
         for (int i = 0; i < runnerThreads; i++) {
             addRunnerThread();
@@ -242,6 +244,7 @@ public class TaskExecutor
     private synchronized void addRunnerThread()
     {
         try {
+            log.info("任务执行executor="+executor.getClass().getName());
             executor.execute(embedVersion.embedVersion(new TaskRunner()));
         }
         catch (RejectedExecutionException ignored) {
@@ -260,7 +263,7 @@ public class TaskExecutor
         checkArgument(!maxDriversPerTask.isPresent() || maxDriversPerTask.getAsInt() <= maximumNumberOfDriversPerTask,
                 "maxDriversPerTask cannot be greater than the configured value");
 
-        log.debug("Task scheduled " + taskId);
+        log.debug("添加任务-Task scheduled " + taskId);
 
         TaskHandle taskHandle = new TaskHandle(taskId, waitingSplits, utilizationSupplier, initialSplitConcurrency, splitConcurrencyAdjustFrequency, maxDriversPerTask);
 
@@ -456,10 +459,12 @@ public class TaskExecutor
             implements Runnable
     {
         private final long runnerId = NEXT_RUNNER_ID.getAndIncrement();
+        private Logger log = Logger.get(TaskRunner.class);
 
         @Override
         public void run()
         {
+            log.info("TaskRunner.run");
             try (SetThreadName runnerName = new SetThreadName("SplitRunner-%s", runnerId)) {
                 while (!closed && !Thread.currentThread().isInterrupted()) {
                     // select next worker

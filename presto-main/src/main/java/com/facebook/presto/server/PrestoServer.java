@@ -128,7 +128,7 @@ public class PrestoServer
             Injector injector = app.strictConfig().initialize();
             injector.getInstance(PluginManager.class).loadPlugins();
             injector.getInstance(StaticCatalogStore.class).loadCatalogs();
-            
+
             // TODO: remove this huge hack
             updateConnectorIds(
                     injector.getInstance(Announcer.class),

@@ -311,7 +311,7 @@ class Query
      */
     public synchronized ListenableFuture<QueryResults> waitForResults(OptionalLong token, UriInfo uriInfo, String scheme, Duration wait, DataSize targetResultSize)
     {
-//        log.info("waitForResults");
+        log.info("waitForResults");
 
         // before waiting, check if this request has already been processed and cached
         if (token.isPresent()) {
@@ -333,6 +333,9 @@ class Query
                 wait,
                 timeoutExecutor);
 
+        /***
+         * 当状态改变时，获取下一个结果
+         */
         // when state changes, fetch the next result
         return Futures.transform(futureStateChange, ignored -> getNextResult(token, uriInfo, scheme, targetResultSize), resultsProcessorExecutor);
     }
@@ -399,6 +402,7 @@ class Query
 
     public synchronized QueryResults getNextResult(OptionalLong token, UriInfo uriInfo, String scheme, DataSize targetResultSize)
     {
+        log.info("getNextResult");
         // check if the result for the token have already been created
         if (token.isPresent()) {
             Optional<QueryResults> cachedResult = getCachedResult(token.getAsLong(), uriInfo);

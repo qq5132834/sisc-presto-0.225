@@ -60,6 +60,7 @@ public final class TreeAssertions
     private static Statement parseFormatted(SqlParser sqlParser, ParsingOptions parsingOptions, String sql, Node tree)
     {
         try {
+            System.out.println("创建Statement");
             return sqlParser.createStatement(sql, parsingOptions);
         }
         catch (ParsingException e) {

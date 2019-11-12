@@ -611,7 +611,7 @@ public class InternalResourceGroup
                 return;
             }
             if (canRun) {
-                LOGGER.info("canRun:"+canRun);
+                LOGGER.info("canRun-startInBackground:"+canRun);
                 startInBackground(query);
             }
             else {

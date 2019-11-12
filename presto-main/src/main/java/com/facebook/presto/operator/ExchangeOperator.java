@@ -23,6 +23,7 @@ import com.facebook.presto.spi.UpdatablePageSource;
 import com.facebook.presto.spi.plan.PlanNodeId;
 import com.facebook.presto.split.RemoteSplit;
 import com.google.common.util.concurrent.ListenableFuture;
+import io.airlift.log.Logger;
 
 import java.io.Closeable;
 import java.util.Optional;
@@ -36,6 +37,7 @@ public class ExchangeOperator
         implements SourceOperator, Closeable
 {
     public static final ConnectorId REMOTE_CONNECTOR_ID = new ConnectorId("$remote");
+    private final static Logger log = Logger.get(ExchangeOperator.class);
 
     public static class ExchangeOperatorFactory
             implements SourceOperatorFactory
@@ -174,6 +176,9 @@ public class ExchangeOperator
     @Override
     public Page getOutput()
     {
+
+        log.info("getOutput");
+
         SerializedPage page = exchangeClient.pollPage();
         if (page == null) {
             return null;

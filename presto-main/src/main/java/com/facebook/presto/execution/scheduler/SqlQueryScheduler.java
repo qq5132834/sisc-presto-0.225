@@ -14,19 +14,7 @@
 package com.facebook.presto.execution.scheduler;
 
 import com.facebook.presto.Session;
-import com.facebook.presto.execution.BasicStageStats;
-import com.facebook.presto.execution.LocationFactory;
-import com.facebook.presto.execution.NodeTaskMap;
-import com.facebook.presto.execution.QueryState;
-import com.facebook.presto.execution.QueryStateMachine;
-import com.facebook.presto.execution.RemoteTask;
-import com.facebook.presto.execution.RemoteTaskFactory;
-import com.facebook.presto.execution.SqlStageExecution;
-import com.facebook.presto.execution.StageId;
-import com.facebook.presto.execution.StageInfo;
-import com.facebook.presto.execution.StageState;
-import com.facebook.presto.execution.TaskId;
-import com.facebook.presto.execution.TaskStatus;
+import com.facebook.presto.execution.*;
 import com.facebook.presto.execution.buffer.OutputBuffers;
 import com.facebook.presto.execution.buffer.OutputBuffers.OutputBufferId;
 import com.facebook.presto.failureDetector.FailureDetector;
@@ -51,6 +39,7 @@ import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import io.airlift.concurrent.SetThreadName;
+import io.airlift.log.Logger;
 import io.airlift.stats.TimeStat;
 import io.airlift.units.Duration;
 
@@ -134,6 +123,8 @@ public class SqlQueryScheduler
     private final AtomicBoolean started = new AtomicBoolean();
     private final AtomicBoolean scheduling = new AtomicBoolean();
     private final int maxConcurrentMaterializations;
+
+    private static final Logger LOGGER = Logger.get(SqlQueryScheduler.class);
 
     public static SqlQueryScheduler createSqlQueryScheduler(
             QueryStateMachine queryStateMachine,
@@ -656,6 +647,7 @@ public class SqlQueryScheduler
 
     private void schedule()
     {
+        LOGGER.info("schedule-start");
         if (!scheduling.compareAndSet(false, true)) {
             // still scheduling the previous batch of stages
             return;
@@ -797,6 +789,8 @@ public class SqlQueryScheduler
                 throw closeError;
             }
         }
+
+        LOGGER.info("schedule-end");
     }
 
     private List<StreamingPlanSection> getSectionsReadyForExecution()

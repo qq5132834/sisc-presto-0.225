@@ -37,6 +37,7 @@ import com.facebook.presto.split.PageSourceProvider;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import io.airlift.log.Logger;
 import io.airlift.units.DataSize;
 
 import java.io.Closeable;
@@ -79,6 +80,8 @@ public class ScanFilterAndProjectOperator
 
     private long completedBytes;
     private long readTimeNanos;
+
+    private final static Logger log = Logger.get(ScanFilterAndProjectOperator.class);
 
     protected ScanFilterAndProjectOperator(
             OperatorContext operatorContext,
@@ -217,6 +220,7 @@ public class ScanFilterAndProjectOperator
     @Override
     public Page getOutput()
     {
+        log.info("getOutput");
         if (split == null) {
             return null;
         }

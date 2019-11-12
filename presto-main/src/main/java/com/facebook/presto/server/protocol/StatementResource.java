@@ -191,6 +191,7 @@ public class StatementResource
             @Context UriInfo uriInfo,
             @Suspended AsyncResponse asyncResponse)
     {
+        LOGGER.info("获取查询结果-getQueryResults");
         Query query = getQuery(queryId, slug);
         if (query == null) {
             asyncResponse.resume(Response.status(Status.NOT_FOUND).build());
@@ -206,12 +207,12 @@ public class StatementResource
     @Nullable
     private Query getQuery(QueryId queryId, String slug)
     {
-        Query query = queries.get(queryId);
-        if (query != null && query.isSlugValid(slug)) {
-            return query;
-        }
-        return null;
+    Query query = queries.get(queryId);
+    if (query != null && query.isSlugValid(slug)) {
+        return query;
     }
+    return null;
+}
 
     private void asyncQueryResults(
             Query query,
@@ -223,7 +224,7 @@ public class StatementResource
             AsyncResponse asyncResponse)
     {
 
-        LOGGER.info("异步asyncQueryResults");
+        LOGGER.info("异步获取查询结果asyncQueryResults");
 
         Duration wait = WAIT_ORDERING.min(MAX_WAIT_TIME, maxWait);
         if (targetResultSize == null) {
@@ -295,6 +296,7 @@ public class StatementResource
             @PathParam("slug") String slug,
             @PathParam("token") long token)
     {
+        LOGGER.info("cancelQuery");
         Query query = getQuery(queryId, slug);
         if (query == null) {
             return Response.status(Status.NOT_FOUND).build();

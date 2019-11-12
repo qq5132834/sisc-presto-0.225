@@ -110,7 +110,7 @@ public final class InternalResourceGroupManager<C>
     @Override
     public void submit(Statement statement, ManagedQueryExecution queryExecution, SelectionContext<C> selectionContext, Executor executor)
     {
-        log.info("submit");
+        log.info("submit，在队列中执行");
         checkState(configurationManager.get() != null, "configurationManager not set");
         createGroupIfNecessary(selectionContext, executor);
 

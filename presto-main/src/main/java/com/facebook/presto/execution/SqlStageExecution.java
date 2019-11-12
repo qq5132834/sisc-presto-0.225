@@ -133,6 +133,8 @@ public final class SqlStageExecution
     @GuardedBy("this")
     private Optional<StageTaskRecoveryCallback> stageTaskRecoveryCallback = Optional.empty();
 
+    private static final Logger LOGGER = Logger.get(SqlStageExecution.class);
+
     public static SqlStageExecution createSqlStageExecution(
             StageId stageId,
             URI location,
@@ -145,6 +147,8 @@ public final class SqlStageExecution
             FailureDetector failureDetector,
             SplitSchedulerStats schedulerStats)
     {
+        LOGGER.info("createSqlStageExecution");
+
         requireNonNull(stageId, "stageId is null");
         requireNonNull(location, "location is null");
         requireNonNull(fragment, "fragment is null");
@@ -203,11 +207,13 @@ public final class SqlStageExecution
 
     public StageId getStageId()
     {
+        LOGGER.info("getStageId");
         return stateMachine.getStageId();
     }
 
     public StageState getState()
     {
+        LOGGER.info("getState");
         return stateMachine.getState();
     }
 
@@ -217,6 +223,7 @@ public final class SqlStageExecution
      */
     public void addStateChangeListener(StateChangeListener<StageState> stateChangeListener)
     {
+        LOGGER.info("addStateChangeListener");
         stateMachine.addStateChangeListener(stateChangeListener);
     }
 
@@ -228,27 +235,32 @@ public final class SqlStageExecution
      */
     public void addFinalStageInfoListener(StateChangeListener<StageInfo> stateChangeListener)
     {
+        LOGGER.info("addFinalStageInfoListener");
         stateMachine.addFinalStageInfoListener(stateChangeListener);
     }
 
     public void addCompletedDriverGroupsChangedListener(Consumer<Set<Lifespan>> newlyCompletedDriverGroupConsumer)
     {
+        LOGGER.info("addCompletedDriverGroupsChangedListener");
         completedLifespansChangeListeners.addListener(newlyCompletedDriverGroupConsumer);
     }
 
     public synchronized void registerStageTaskRecoveryCallback(StageTaskRecoveryCallback stageTaskRecoveryCallback)
     {
+        LOGGER.info("registerStageTaskRecoveryCallback");
         checkState(!this.stageTaskRecoveryCallback.isPresent(), "stageTaskRecoveryCallback should be registered only once");
         this.stageTaskRecoveryCallback = Optional.of(requireNonNull(stageTaskRecoveryCallback, "stageTaskRecoveryCallback is null"));
     }
 
     public PlanFragment getFragment()
     {
+        LOGGER.info("getFragment");
         return stateMachine.getFragment();
     }
 
     public OutputBuffers getOutputBuffers()
     {
+        LOGGER.info("getOutputBuffers");
         return outputBuffers.get();
     }
 
@@ -295,12 +307,14 @@ public final class SqlStageExecution
 
     public synchronized void cancel()
     {
+        LOGGER.info("cancel");
         stateMachine.transitionToCanceled();
         getAllTasks().forEach(RemoteTask::cancel);
     }
 
     public synchronized void abort()
     {
+        LOGGER.info("abort");
         stateMachine.transitionToAborted();
         getAllTasks().forEach(RemoteTask::abort);
     }
@@ -335,6 +349,7 @@ public final class SqlStageExecution
 
     private Iterable<TaskInfo> getAllTaskInfo()
     {
+        LOGGER.info("getAllTaskInfo");
         return getAllTasks().stream()
                 .map(RemoteTask::getTaskInfo)
                 .collect(toImmutableList());
@@ -405,6 +420,7 @@ public final class SqlStageExecution
     // this is used for query info building which should be independent of scheduling work
     public List<RemoteTask> getAllTasks()
     {
+        LOGGER.info("getAllTasks");
         return tasks.values().stream()
                 .flatMap(Set::stream)
                 .collect(toImmutableList());
@@ -434,6 +450,8 @@ public final class SqlStageExecution
 
     public synchronized Set<RemoteTask> scheduleSplits(InternalNode node, Multimap<PlanNodeId, Split> splits, Multimap<PlanNodeId, Lifespan> noMoreSplitsNotification)
     {
+        LOGGER.info("scheduleSplits");
+
         requireNonNull(node, "node is null");
         requireNonNull(splits, "splits is null");
 
@@ -472,6 +490,7 @@ public final class SqlStageExecution
 
     private synchronized RemoteTask scheduleTask(InternalNode node, TaskId taskId, Multimap<PlanNodeId, Split> sourceSplits, OptionalInt totalPartitions)
     {
+
         checkArgument(!allTasks.contains(taskId), "A task with id %s already exists", taskId);
 
         ImmutableMultimap.Builder<PlanNodeId, Split> initialSplits = ImmutableMultimap.builder();
