@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.verifier.framework;
 
+import com.facebook.presto.execution.SqlStageExecution;
 import com.facebook.presto.jdbc.PrestoConnection;
 import com.facebook.presto.jdbc.PrestoStatement;
 import com.facebook.presto.jdbc.QueryStats;
@@ -23,6 +24,7 @@ import com.facebook.presto.verifier.retry.RetryConfig;
 import com.facebook.presto.verifier.retry.RetryDriver;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.airlift.log.Logger;
 import io.airlift.units.Duration;
 
 import java.sql.DriverManager;
@@ -60,6 +62,8 @@ public class JdbcPrestoAction
     private final RetryDriver networkRetry;
     private final RetryDriver prestoRetry;
 
+    private static final Logger LOGGER = Logger.get(JdbcPrestoAction.class);
+
     public JdbcPrestoAction(
             SqlExceptionClassifier exceptionClassifier,
             QueryConfiguration controlConfiguration,
@@ -90,12 +94,14 @@ public class JdbcPrestoAction
     @Override
     public QueryStats execute(Statement statement, QueryStage queryStage)
     {
+        LOGGER.info("execute状态");
         return execute(statement, queryStage, Optional.empty()).getQueryStats();
     }
 
     @Override
     public <R> QueryResult<R> execute(Statement statement, QueryStage queryStage, ResultSetConverter<R> converter)
     {
+        LOGGER.info("execute结果");
         return execute(statement, queryStage, Optional.of(converter));
     }
 
