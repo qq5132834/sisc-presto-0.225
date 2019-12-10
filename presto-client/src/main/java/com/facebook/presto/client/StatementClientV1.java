@@ -336,9 +336,14 @@ class StatementClientV1
                 .url(url);
     }
 
+    /***
+     * 循环发送 http 请求去 Coordinator 获取返回值
+     * @return
+     */
     @Override
     public boolean advance()
     {
+
         if (!isRunning()) {
             return false;
         }
@@ -355,7 +360,9 @@ class StatementClientV1
         long start = System.nanoTime();
         long attempts = 0;
 
+        //循环http请求
         while (true) {
+            System.out.println("StatementClientV1.advance:循环发送 http 请求去 Coordinator 获取返回值");
             if (isClientAborted()) {
                 return false;
             }
