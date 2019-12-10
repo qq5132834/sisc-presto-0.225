@@ -84,6 +84,11 @@ public class Console
 
     public boolean run()
     {
+        System.out.println("默认连接 --server 192.168.133.129:8090 --catalog tpch --sechma sf1");
+        clientOptions.catalog = "tpch";
+        clientOptions.server="192.168.133.129:8090";
+        clientOptions.schema = "sf1";
+
         ClientSession session = clientOptions.toClientSession();
         boolean hasQuery = !isNullOrEmpty(clientOptions.execute);
         boolean isFromFile = !isNullOrEmpty(clientOptions.file);
@@ -178,7 +183,8 @@ public class Console
                 LineReader reader = new LineReader(getHistory(), commandCompleter(), lowerCaseCommandCompleter(), tableNameCompleter)) {
             tableNameCompleter.populateCache();
             StringBuilder buffer = new StringBuilder();
-            while (!exiting.get()) {
+            int i = 0;
+            while (!exiting.get() && i<1) {
                 // read a line of input from user
                 String prompt = PROMPT_NAME;
                 String schema = queryRunner.getSession().getSchema();
@@ -189,7 +195,12 @@ public class Console
                     prompt = Strings.repeat(" ", prompt.length() - 1) + "-";
                 }
                 String commandPrompt = prompt + "> ";
-                String line = reader.readLine(commandPrompt);
+
+                //默认数据库表列表
+                //String line = reader.readLine(commandPrompt);
+                i++;
+                String line = "show tables;";
+                System.out.println("默认执行命令："+commandPrompt + line);
 
                 // add buffer to history and clear on user interrupt
                 if (reader.interrupted()) {

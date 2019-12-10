@@ -21,6 +21,18 @@ public final class Presto
 
     public static void main(String[] args)
     {
+        if(args==null){
+            args=new String[]{"--server","192.168.133.129:8090","--catalog","tpch","--schema","sf1"};
+//            args = new String[]{"--server 192.168.133.129:8090 --catalog tpch --schema sf1"};
+        }
+
+        if(args!=null){
+            for(String str : args){
+                System.out.println(str);
+            }
+        }
+
+
         Console console = singleCommand(Console.class).parse(args);
 
         if (console.helpOption.showHelpIfRequested() ||
