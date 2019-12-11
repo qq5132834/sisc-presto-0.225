@@ -88,36 +88,38 @@ public class PrestoServer
     @Override
     public void run()
     {
-        verifyJvmRequirements();
-        verifySystemTimeIsReasonable();
+        //校验presto的运行环境
+        PrestoSystemRequirements.verifyJvmRequirements();
+        //系统当前时间判断
+        PrestoSystemRequirements.verifySystemTimeIsReasonable();
 
 
         Logger log = Logger.get(PrestoServer.class);
 
         ImmutableList.Builder<Module> modules = ImmutableList.builder();
         modules.add(
-                new NodeModule(),
-                new DiscoveryModule(),
-                new HttpServerModule(),
-                new JsonModule(),
+                new NodeModule(),  //节点信息
+                new DiscoveryModule(), //发现服务模块
+                new HttpServerModule(), //airlife http服务模块
+                new JsonModule(),  //airlife Json模块
                 installModuleIf(
                         FeaturesConfig.class,
                         FeaturesConfig::isJsonSerdeCodeGenerationEnabled,
                         binder -> jsonBinder(binder).addModuleBinding().to(AfterburnerModule.class)),
                 new SmileModule(),
-                new JaxrsModule(true),
-                new MBeanModule(),
-                new JmxModule(),
-                new JmxHttpModule(),
-                new LogJmxModule(),
-                new TraceTokenModule(),
+                new JaxrsModule(true),  //java API for restful 模块
+                new MBeanModule(), //被管理的bean模块
+                new JmxModule(), //Jmx模块
+                new JmxHttpModule(), //基于Http管理MBean的Jmx模块
+                new LogJmxModule(), //日志Jmx模块
+                new TraceTokenModule(),    //跟踪tokenid模块
                 new JsonEventModule(),
                 new HttpEventModule(),
-                new ServerSecurityModule(),
-                new AccessControlModule(),
-                new EventListenerModule(),
-                new ServerMainModule(sqlParserOptions),
-                new GracefulShutdownModule(),
+                new ServerSecurityModule(), //服务安全模块
+                new AccessControlModule(),  //权限控制模块
+                new EventListenerModule(),  //事件监听模块（查询结束、创建结束、splite结束）
+                new ServerMainModule(sqlParserOptions),   //主要服务模块
+                new GracefulShutdownModule(),  //优雅的关闭服务模块
                 new WarningCollectorModule());
 
         modules.addAll(getAdditionalModules());
@@ -125,8 +127,13 @@ public class PrestoServer
         Bootstrap app = new Bootstrap(modules.build());
 
         try {
+            //初始化模块
             Injector injector = app.strictConfig().initialize();
+
+            //加载【plugin】目录下的jar包
             injector.getInstance(PluginManager.class).loadPlugins();
+
+            //加载数据源
             injector.getInstance(StaticCatalogStore.class).loadCatalogs();
 
             // TODO: remove this huge hack
