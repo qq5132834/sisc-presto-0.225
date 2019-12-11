@@ -273,6 +273,7 @@ public class TaskExecutor
 
     public void removeTask(TaskHandle taskHandle)
     {
+        log.info("并发SetThreadName-removeTask");
         try (SetThreadName ignored = new SetThreadName("Task-%s", taskHandle.getTaskId())) {
             doRemoveTask(taskHandle);
         }
@@ -465,6 +466,7 @@ public class TaskExecutor
         public void run()
         {
             log.info("TaskRunner.run");
+            log.info("并发SetThreadName-run");
             try (SetThreadName runnerName = new SetThreadName("SplitRunner-%s", runnerId)) {
                 while (!closed && !Thread.currentThread().isInterrupted()) {
                     // select next worker
@@ -478,6 +480,7 @@ public class TaskExecutor
                     }
 
                     String threadId = split.getTaskHandle().getTaskId() + "-" + split.getSplitId();
+                    log.info("并发SetThreadName-"+threadId);
                     try (SetThreadName splitName = new SetThreadName(threadId)) {
                         RunningSplitInfo splitInfo = new RunningSplitInfo(ticker.read(), threadId, Thread.currentThread());
                         runningSplitInfos.add(splitInfo);

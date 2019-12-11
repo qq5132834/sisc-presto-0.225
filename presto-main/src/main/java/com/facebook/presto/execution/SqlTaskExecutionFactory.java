@@ -25,6 +25,7 @@ import com.facebook.presto.sql.planner.LocalExecutionPlanner.LocalExecutionPlan;
 import com.facebook.presto.sql.planner.PlanFragment;
 import com.facebook.presto.sql.planner.TypeProvider;
 import io.airlift.concurrent.SetThreadName;
+import io.airlift.log.Logger;
 
 import java.util.List;
 import java.util.OptionalInt;
@@ -45,6 +46,8 @@ public class SqlTaskExecutionFactory
     private final boolean perOperatorCpuTimerEnabled;
     private final boolean cpuTimerEnabled;
     private final boolean legacyLifespanCompletionCondition;
+
+    private static final Logger log = Logger.get(SqlTaskExecutionFactory.class);
 
     public SqlTaskExecutionFactory(
             Executor taskNotificationExecutor,
@@ -82,6 +85,8 @@ public class SqlTaskExecutionFactory
                 legacyLifespanCompletionCondition);
 
         LocalExecutionPlan localExecutionPlan;
+
+        log.info("并发SetThreadName-create");
         try (SetThreadName ignored = new SetThreadName("Task-%s", taskStateMachine.getTaskId())) {
             try {
                 localExecutionPlan = planner.plan(

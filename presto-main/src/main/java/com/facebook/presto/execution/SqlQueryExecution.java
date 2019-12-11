@@ -160,6 +160,7 @@ public class SqlQueryExecution
             CostCalculator costCalculator,
             WarningCollector warningCollector)
     {
+        LOGGER.info("并发SetThreadName-SqlQueryExecution");
         try (SetThreadName ignored = new SetThreadName("Query-%s", session.getQueryId())) {
             this.clusterSizeMonitor = requireNonNull(clusterSizeMonitor, "clusterSizeMonitor is null");
             this.metadata = requireNonNull(metadata, "metadata is null");
@@ -360,7 +361,7 @@ public class SqlQueryExecution
 
         LOGGER.info("【重要节点】startExecution");
 
-
+        LOGGER.info("并发SetThreadName-startExecution");
         try (SetThreadName ignored = new SetThreadName("Query-%s", stateMachine.getQueryId())) {
             try {
                 // transition to planning
@@ -405,6 +406,7 @@ public class SqlQueryExecution
     @Override
     public void addStateChangeListener(StateChangeListener<QueryState> stateChangeListener)
     {
+        LOGGER.info("并发SetThreadName-addStateChangeListener");
         try (SetThreadName ignored = new SetThreadName("Query-%s", stateMachine.getQueryId())) {
             stateMachine.addStateChangeListener(stateChangeListener);
         }
@@ -552,6 +554,7 @@ public class SqlQueryExecution
     {
         requireNonNull(stageId, "stageId is null");
 
+        LOGGER.info("并发SetThreadName-cancelStage");
         try (SetThreadName ignored = new SetThreadName("Query-%s", stateMachine.getQueryId())) {
             SqlQueryScheduler scheduler = queryScheduler.get();
             if (scheduler != null) {
@@ -607,6 +610,7 @@ public class SqlQueryExecution
     @Override
     public QueryInfo getQueryInfo()
     {
+        LOGGER.info("并发SetThreadName-getQueryInfo");
         try (SetThreadName ignored = new SetThreadName("Query-%s", stateMachine.getQueryId())) {
             // acquire reference to scheduler before checking finalQueryInfo, because
             // state change listener sets finalQueryInfo and then clears scheduler when

@@ -13,11 +13,8 @@
  */
 package com.facebook.presto.server.remotetask;
 
-import com.facebook.presto.execution.StateMachine;
+import com.facebook.presto.execution.*;
 import com.facebook.presto.execution.StateMachine.StateChangeListener;
-import com.facebook.presto.execution.TaskId;
-import com.facebook.presto.execution.TaskInfo;
-import com.facebook.presto.execution.TaskStatus;
 import com.facebook.presto.server.smile.BaseResponse;
 import com.facebook.presto.server.smile.Codec;
 import com.facebook.presto.server.smile.SmileCodec;
@@ -28,6 +25,7 @@ import io.airlift.http.client.HttpClient;
 import io.airlift.http.client.HttpUriBuilder;
 import io.airlift.http.client.Request;
 import io.airlift.http.client.ResponseHandler;
+import io.airlift.log.Logger;
 import io.airlift.units.Duration;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -89,6 +87,8 @@ public class TaskInfoFetcher
     private ListenableFuture<BaseResponse<TaskInfo>> future;
 
     private final boolean isBinaryTransportEnabled;
+
+    private static final Logger log = Logger.get(TaskInfoFetcher.class);
 
     public TaskInfoFetcher(
             Consumer<Throwable> onFail,
@@ -260,6 +260,7 @@ public class TaskInfoFetcher
     @Override
     public void success(TaskInfo newValue)
     {
+        log.info("并发SetThreadName-success");
         try (SetThreadName ignored = new SetThreadName("TaskInfoFetcher-%s", taskId)) {
             lastUpdateNanos.set(System.nanoTime());
 
@@ -276,6 +277,7 @@ public class TaskInfoFetcher
     @Override
     public void failed(Throwable cause)
     {
+        log.info("并发SetThreadName-failed");
         try (SetThreadName ignored = new SetThreadName("TaskInfoFetcher-%s", taskId)) {
             lastUpdateNanos.set(System.nanoTime());
 
@@ -298,6 +300,7 @@ public class TaskInfoFetcher
     @Override
     public void fatal(Throwable cause)
     {
+        log.info("并发SetThreadName-fatal");
         try (SetThreadName ignored = new SetThreadName("TaskInfoFetcher-%s", taskId)) {
             onFail.accept(cause);
         }

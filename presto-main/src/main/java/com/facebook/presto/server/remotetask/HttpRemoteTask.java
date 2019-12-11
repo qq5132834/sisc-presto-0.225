@@ -220,6 +220,8 @@ public final class HttpRemoteTask
         requireNonNull(stats, "stats is null");
         requireNonNull(taskInfoRefreshMaxWait, "taskInfoRefreshMaxWait is null");
 
+
+        log.info("并发SetThreadName-HttpRemoteTask");
         try (SetThreadName ignored = new SetThreadName("HttpRemoteTask-%s", taskId)) {
             this.taskId = taskId;
             this.taskLocation = location;
@@ -331,6 +333,7 @@ public final class HttpRemoteTask
     @Override
     public void start()
     {
+        log.info("并发SetThreadName-start");
         try (SetThreadName ignored = new SetThreadName("HttpRemoteTask-%s", taskId)) {
             // to start we just need to trigger an update
             scheduleUpdate();
@@ -511,6 +514,7 @@ public final class HttpRemoteTask
     @Override
     public void addStateChangeListener(StateChangeListener<TaskStatus> stateChangeListener)
     {
+        log.info("并发SetThreadName-addStateChangeListener");
         try (SetThreadName ignored = new SetThreadName("HttpRemoteTask-%s", taskId)) {
             taskStatusFetcher.addStateChangeListener(stateChangeListener);
         }
@@ -675,6 +679,7 @@ public final class HttpRemoteTask
     @Override
     public synchronized void cancel()
     {
+        log.info("并发SetThreadName-cancel");
         try (SetThreadName ignored = new SetThreadName("HttpRemoteTask-%s", taskId)) {
             TaskStatus taskStatus = getTaskStatus();
             if (taskStatus.getState().isDone()) {
@@ -734,6 +739,7 @@ public final class HttpRemoteTask
     {
         checkState(status.getState().isDone(), "cannot abort task with an incomplete status");
 
+        log.info("并发SetThreadName-abort");
         try (SetThreadName ignored = new SetThreadName("HttpRemoteTask-%s", taskId)) {
             // With recoverable grouped execution, failed task does not necessarily fail the whole query.
             // Not updating task info makes query unable to finish in tests because failed task is stuck in RUNNING state.
@@ -888,6 +894,7 @@ public final class HttpRemoteTask
         @Override
         public void success(TaskInfo value)
         {
+            log.info("并发SetThreadName-success");
             try (SetThreadName ignored = new SetThreadName("UpdateResponseHandler-%s", taskId)) {
                 try {
                     long currentRequestStartNanos;
@@ -909,6 +916,7 @@ public final class HttpRemoteTask
         @Override
         public void failed(Throwable cause)
         {
+            log.info("并发SetThreadName-failed");
             try (SetThreadName ignored = new SetThreadName("UpdateResponseHandler-%s", taskId)) {
                 try {
                     long currentRequestStartNanos;
@@ -943,6 +951,7 @@ public final class HttpRemoteTask
         @Override
         public void fatal(Throwable cause)
         {
+            log.info("并发SetThreadName-fatal");
             try (SetThreadName ignored = new SetThreadName("UpdateResponseHandler-%s", taskId)) {
                 failTask(cause);
             }

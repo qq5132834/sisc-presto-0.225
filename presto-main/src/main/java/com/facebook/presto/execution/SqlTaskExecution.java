@@ -142,6 +142,8 @@ public class SqlTaskExecution
 
     private final Status status;
 
+    private static final Logger log = Logger.get(SqlTaskExecution.class);
+
     static SqlTaskExecution createSqlTaskExecution(
             TaskStateMachine taskStateMachine,
             TaskContext taskContext,
@@ -160,6 +162,8 @@ public class SqlTaskExecution
                 taskExecutor,
                 queryMonitor,
                 notificationExecutor);
+
+        log.info("并发SetThreadName-createSqlTaskExecution");
         try (SetThreadName ignored = new SetThreadName("Task-%s", task.getTaskId())) {
             // The scheduleDriversForTaskLifeCycle method calls enqueueDriverSplitRunner, which registers a callback with access to this object.
             // The call back is accessed from another thread, so this code can not be placed in the constructor.
@@ -188,6 +192,7 @@ public class SqlTaskExecution
 
         this.splitMonitor = requireNonNull(splitMonitor, "splitMonitor is null");
 
+        log.info("并发SetThreadName-SqlTaskExecution");
         try (SetThreadName ignored = new SetThreadName("Task-%s", taskId)) {
             // index driver factories
             Set<PlanNodeId> tableScanSources = ImmutableSet.copyOf(localExecutionPlan.getTableScanSourceOrder());
@@ -291,6 +296,7 @@ public class SqlTaskExecution
         requireNonNull(sources, "sources is null");
         checkState(!Thread.holdsLock(this), "Can not add sources while holding a lock on the %s", getClass().getSimpleName());
 
+        log.info("并发SetThreadName-addSources");
         try (SetThreadName ignored = new SetThreadName("Task-%s", taskId)) {
             // update our record of sources and schedule drivers for new partitioned splits
             Map<PlanNodeId, TaskSource> updatedRemoteSources = updateSources(sources);
@@ -564,6 +570,7 @@ public class SqlTaskExecution
                 @Override
                 public void onSuccess(Object result)
                 {
+                    log.info("并发SetThreadName-onSuccess");
                     try (SetThreadName ignored = new SetThreadName("Task-%s", taskId)) {
                         // record driver is finished
                         status.decrementRemainingDriver(splitRunner.getLifespan());
@@ -577,6 +584,7 @@ public class SqlTaskExecution
                 @Override
                 public void onFailure(Throwable cause)
                 {
+                    log.info("并发SetThreadName-onFailure");
                     try (SetThreadName ignored = new SetThreadName("Task-%s", taskId)) {
                         taskStateMachine.failed(cause);
 

@@ -223,6 +223,7 @@ public class SqlTask
 
     public TaskInfo getTaskInfo()
     {
+        log.info("并发SetThreadName-getTaskInfo");
         try (SetThreadName ignored = new SetThreadName("Task-%s", taskId)) {
             return createTaskInfo(taskHolderReference.get());
         }
@@ -230,6 +231,7 @@ public class SqlTask
 
     public TaskStatus getTaskStatus()
     {
+        log.info("并发SetThreadName-getTaskInfo");
         try (SetThreadName ignored = new SetThreadName("Task-%s", taskId)) {
             return createTaskStatus(taskHolderReference.get());
         }

@@ -655,6 +655,7 @@ public class SqlQueryScheduler
 
         List<SqlStageExecution> scheduledStages = new ArrayList<>();
 
+        LOGGER.info("并发SetThreadName-schedule");
         try (SetThreadName ignored = new SetThreadName("Query-%s", queryStateMachine.getQueryId())) {
             Set<StageId> completedStages = new HashSet<>();
 
@@ -847,6 +848,7 @@ public class SqlQueryScheduler
 
     public void cancelStage(StageId stageId)
     {
+        LOGGER.info("并发SetThreadName-cancelStage");
         try (SetThreadName ignored = new SetThreadName("Query-%s", queryStateMachine.getQueryId())) {
             SqlStageExecution sqlStageExecution = stages.get(stageId);
             SqlStageExecution stage = requireNonNull(sqlStageExecution, () -> format("Stage %s does not exist", stageId));
@@ -856,6 +858,7 @@ public class SqlQueryScheduler
 
     public void abort()
     {
+        LOGGER.info("并发SetThreadName-abort");
         try (SetThreadName ignored = new SetThreadName("Query-%s", queryStateMachine.getQueryId())) {
             stages.values().forEach(SqlStageExecution::abort);
         }
