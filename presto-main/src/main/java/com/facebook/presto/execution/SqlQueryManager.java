@@ -512,11 +512,16 @@ public class SqlQueryManager
 
         // start the query in the background
         try {
+            LOGGER.info("异步");
             LOGGER.info("将queryExcution提交到队列中执行");
+            {
 //            resourceGroupManager.submit(preparedQuery.getStatement(), queryExecution, selectionContext, unboundedExecutorService);
-
-            LOGGER.info("直接运行queryExecution，不加入resourceGroupManager队列中");
-            queryExecution.start();
+            }
+            //改为
+            {
+                LOGGER.info("直接运行queryExecution，不加入resourceGroupManager队列中");
+                queryExecution.start();
+            }
 
         }
         catch (Throwable e) {

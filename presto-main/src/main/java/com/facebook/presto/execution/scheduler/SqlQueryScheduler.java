@@ -642,7 +642,16 @@ public class SqlQueryScheduler
         if (scheduling.get()) {
             return;
         }
-        executor.submit(this::schedule);
+
+        LOGGER.info("异步");
+        {
+//            executor.submit(this::schedule);
+        }
+        //改为
+        {
+            this.schedule();
+        }
+
     }
 
     private void schedule()
@@ -657,10 +666,11 @@ public class SqlQueryScheduler
 
         LOGGER.info("并发SetThreadName-schedule");
         try (SetThreadName ignored = new SetThreadName("Query-%s", queryStateMachine.getQueryId())) {
-            Set<StageId> completedStages = new HashSet<>();
 
+            Set<StageId> completedStages = new HashSet<>();
             List<ExecutionSchedule> sectionExecutionSchedules = new LinkedList<>();
 
+            //当前线程是否被中断，或者完成
             while (!Thread.currentThread().isInterrupted()) {
                 // remove finished section
                 sectionExecutionSchedules.removeIf(ExecutionSchedule::isFinished);
